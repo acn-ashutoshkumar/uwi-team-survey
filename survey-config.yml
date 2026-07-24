@@ -6,28 +6,17 @@
 survey:
   title: "UWI Weekly Team Pulse"
   description: "Quick check-in to help the team stay aligned and unblock issues early."
-
-  # Schedule options:
-  #   Weekly (every Monday 9am UTC):  "0 9 * * 1"
-  #   Bi-weekly (every other Monday): Use workflow dispatch manually
-  #   Monthly (1st of month 9am UTC): "0 9 1 * *"
-  schedule: "0 9 * * 1"   # Weekly — Monday 9am UTC
+  schedule: "0 9 * * 1"
   frequency_label: "weekly"
-
-  # GitHub usernames of all teammates who should be assigned/notified
   team:
-   - "acn-ashutoshkumar" 
-   - "acn-urvashiisharma"
-    # Add more GitHub usernames here
-
-  # Admin GitHub username — dashboard is deployed for this person
+    - "acn-ashutoshkumar"
+    - "acn-urvashiisharma"
+    - "Prasath-7"
   admin: "acn-ashutoshkumar"
-
-  # Label applied to all survey issues (create this label in your repo first)
   issue_label: "team-survey"
 
 questions:
- - id: "morale"
+  - id: "morale"
     type: "rating"
     label: "Team morale"
     text: "How is team morale this week?"
@@ -44,7 +33,6 @@ questions:
       - "Infrastructure / environment issues"
       - "No blockers"
 
- 
   - id: "highlight"
     type: "text"
     label: "Weekly highlight"
