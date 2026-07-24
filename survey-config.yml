@@ -10,6 +10,7 @@ survey:
   frequency_label: "weekly"
   team:
     - "acn-ashutoshkumar"
+    - "acn-shameethsuresh"
     - "Prasath-7"
   admin: "acn-ashutoshkumar"
   issue_label: "team-survey"
