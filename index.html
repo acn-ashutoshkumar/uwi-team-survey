@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UWI Team Survey Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f8f7f4;
+      --surface: #ffffff;
+      --border: #e2e0d8;
+      --text: #2c2c2a;
+      --text-muted: #888780;
+      --accent: #534AB7;
+      --accent-light: #EEEDFE;
+      --teal: #0F6E56;
+      --teal-light: #E1F5EE;
+      --amber: #BA7517;
+      --amber-light: #FAEEDA;
+      --coral: #993C1D;
+      --coral-light: #FAECE7;
+      --green: #3B6D11;
+      --green-light: #EAF3DE;
+      --radius: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1a18;
+        --surface: #242422;
+        --border: #3a3a38;
+        --text: #e8e6de;
+        --text-muted: #888780;
+        --accent: #AFA9EC;
+        --accent-light: #26215C;
+        --teal: #5DCAA5;
+        --teal-light: #04342C;
+        --amber: #EF9F27;
+        --amber-light: #412402;
+        --coral: #F0997B;
+        --coral-light: #4A1B0C;
+        --green: #97C459;
+        --green-light: #173404;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    header p { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
+
+    .week-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .week-nav button {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.15s;
+    }
+
+    .week-nav button:hover { background: var(--bg); }
+    .week-nav button:disabled { opacity: 0.4; cursor: default; }
+
+    #week-label {
+      font-weight: 600;
+      font-size: 14px;
+      min-width: 100px;
+      text-align: center;
+    }
+
+    .main { padding: 28px 32px; max-width: 1100px; margin: 0 auto; }
+
+    /* Stat cards row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+    }
+
+    .stat-card .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-card .value {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    .stat-card.accent  { background: var(--accent-light);  border-color: var(--accent); }
+    .stat-card.accent .value { color: var(--accent); }
+    .stat-card.teal    { background: var(--teal-light);    border-color: var(--teal); }
+    .stat-card.teal .value   { color: var(--teal); }
+    .stat-card.amber   { background: var(--amber-light);   border-color: var(--amber); }
+    .stat-card.amber .value  { color: var(--amber); }
+    .stat-card.coral   { background: var(--coral-light);   border-color: var(--coral); }
+    .stat-card.coral .value  { color: var(--coral); }
+
+    /* Chart grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 700px) {
+      .charts-grid { grid-template-columns: 1fr; }
+      .main { padding: 20px 16px; }
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .chart-card h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+    }
+
+    .chart-card.wide { grid-column: span 2; }
+    @media (max-width: 700px) { .chart-card.wide { grid-column: span 1; } }
+
+    /* Trend chart */
+    canvas { max-height: 240px; }
+
+    /* Blocker breakdown */
+    .blocker-list { list-style: none; }
+    .blocker-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .blocker-list li:last-child { border: none; }
+
+    .blocker-bar-wrap { flex: 1; background: var(--bg); border-radius: 4px; height: 8px; overflow: hidden; }
+    .blocker-bar { height: 8px; border-radius: 4px; background: var(--coral); transition: width 0.5s ease; }
+    .blocker-count { font-weight: 600; min-width: 24px; text-align: right; color: var(--text-muted); font-size: 12px; }
+    .blocker-name { min-width: 160px; color: var(--text); }
+
+    /* Individual responses table */
+    .response-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .response-table th {
+      text-align: left;
+      padding: 8px 12px;
+      border-bottom: 2px solid var(--border);
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 11px;
+    }
+
+    .response-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .response-table tr:hover td { background: var(--bg); }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .pill-1 { background: var(--teal-light);  color: var(--teal); }
+    .pill-2 { background: var(--teal-light);  color: var(--teal); }
+    .pill-3 { background: var(--amber-light); color: var(--amber); }
+    .pill-4 { background: var(--coral-light); color: var(--coral); }
+    .pill-5 { background: var(--coral-light); color: var(--coral); }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    #loading {
+      text-align: center;
+      padding: 80px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>UWI Team Survey Dashboard</h1>
+    <p>Accenture &amp; NTT Docomo Global — team pulse results</p>
+  </div>
+  <div class="week-nav">
+    <button id="prev-btn" onclick="changeWeek(-1)">← Prev</button>
+    <span id="week-label">—</span>
+    <button id="next-btn" onclick="changeWeek(1)">Next →</button>
+  </div>
+</header>
+
+<div class="main" id="loading">
+  Loading survey data…
+</div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+// The dashboard reads JSON files from the /responses/{week}/ folder.
+// On GitHub Pages, it fetches them via the GitHub Contents API.
+// Set these two variables to your repo details:
+const GITHUB_OWNER = "acn-ashutoshkumar";
+const GITHUB_REPO  = "uwi-team-survey";
+// ───────────────────────────────────────────────────────────────────────────
+
+let allWeeks = [];
+let currentWeekIndex = 0;
+let trendChart = null, workloadChart = null, moraleChart = null;
+
+// ─── Utility: get ISO week string for a date ─────────────────────────────
+function getISOWeek(date = new Date()) {
+  const d = new Date(date);
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+  const yearStart = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+  return `${d.getFullYear()}-W${String(week).padStart(2,'0')}`;
+}
+
+// ─── Fetch list of available survey weeks from GitHub API ─────────────────
+async function loadWeeks() {
+  try {
+    const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/responses`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+    const dirs = await res.json();
+    allWeeks = dirs
+      .filter(d => d.type === 'dir' && /^\d{4}-W\d{2}$/.test(d.name))
+      .map(d => d.name)
+      .sort()
+      .reverse(); // newest first
+    if (allWeeks.length === 0) throw new Error('no-data');
+    currentWeekIndex = 0;
+    renderWeek(allWeeks[0]);
+  } catch (err) {
+    if (err.message === 'no-data') {
+      renderEmpty("No survey responses yet. The first responses will appear here after the first survey is completed.");
+    } else {
+      // Demo mode with sample data for preview
+      renderDemo();
+    }
+  }
+}
+
+// ─── Fetch all responses for a given week ────────────────────────────────
+async function loadWeekResponses(week) {
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/responses/${week}`;
+  const res = await fetch(url);
+  if (!res.ok) return [];
+  const files = await res.json();
+
+  const responses = await Promise.all(
+    files.filter(f => f.name.endsWith('.json')).map(async f => {
+      const r = await fetch(f.download_url);
+      return r.json();
+    })
+  );
+  return responses;
+}
+
+// ─── Navigate weeks ──────────────────────────────────────────────────────
+function changeWeek(delta) {
+  currentWeekIndex = Math.max(0, Math.min(allWeeks.length - 1, currentWeekIndex + delta));
+  renderWeek(allWeeks[currentWeekIndex]);
+}
+
+// ─── Render dashboard for a week ─────────────────────────────────────────
+async function renderWeek(week) {
+  document.getElementById('week-label').textContent = week;
+  document.getElementById('prev-btn').disabled = currentWeekIndex >= allWeeks.length - 1;
+  document.getElementById('next-btn').disabled = currentWeekIndex === 0;
+
+  const responses = await loadWeekResponses(week);
+  renderDashboard(responses, week);
+}
+
+function renderEmpty(msg) {
+  document.querySelector('.main').innerHTML = `
+    <div class="empty-state">
+      <div class="icon">📋</div>
+      <p>${msg}</p>
+    </div>`;
+}
+
+// ─── Main render ─────────────────────────────────────────────────────────
+function renderDashboard(responses, week) {
+  const total = responses.length;
+  const workloads = responses.map(r => r.answers.workload).filter(Boolean);
+  const morales   = responses.map(r => r.answers.morale).filter(Boolean);
+  const avg = arr => arr.length ? (arr.reduce((a,b) => a+b, 0) / arr.length).toFixed(1) : '—';
+
+  // Count blockers
+  const blockerCounts = {};
+  responses.forEach(r => {
+    (r.answers.blockers || []).forEach(b => {
+      blockerCounts[b] = (blockerCounts[b] || 0) + 1;
+    });
+  });
+  const sortedBlockers = Object.entries(blockerCounts).sort((a,b) => b[1]-a[1]);
+  const maxBlocker = sortedBlockers[0]?.[1] || 1;
+
+  // Response rate (assume team size 4 for now — could be read from config)
+  const teamSize = 4;
+  const responseRate = Math.round((total / teamSize) * 100);
+
+  document.querySelector('.main').innerHTML = `
+  <!-- Stat cards -->
+  <div class="stats-row">
+    <div class="stat-card accent">
+      <div class="label">Responses</div>
+      <div class="value">${total}</div>
+      <div class="sub">${responseRate}% response rate</div>
+    </div>
+    <div class="stat-card teal">
+      <div class="label">Avg workload</div>
+      <div class="value">${avg(workloads)}<span style="font-size:14px;font-weight:400"> / 5</span></div>
+      <div class="sub">${workloads.length} rated</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="label">Avg morale</div>
+      <div class="value">${avg(morales)}<span style="font-size:14px;font-weight:400"> / 5</span></div>
+      <div class="sub">${morales.length} rated</div>
+    </div>
+    <div class="stat-card coral">
+      <div class="label">Top blocker</div>
+      <div class="value" style="font-size:16px;padding-top:4px">${sortedBlockers[0]?.[0]?.split(' ')[0] || '—'}</div>
+      <div class="sub">${sortedBlockers[0] ? sortedBlockers[0][1] + ' people affected' : 'No blockers reported'}</div>
+    </div>
+  </div>
+
+  <!-- Charts grid -->
+  <div class="charts-grid">
+    <!-- Workload distribution -->
+    <div class="chart-card">
+      <h3>Workload distribution</h3>
+      <canvas id="workload-chart"></canvas>
+    </div>
+    <!-- Morale distribution -->
+    <div class="chart-card">
+      <h3>Morale distribution</h3>
+      <canvas id="morale-chart"></canvas>
+    </div>
+    <!-- Blockers -->
+    <div class="chart-card wide">
+      <h3>Blockers reported</h3>
+      ${sortedBlockers.length === 0
+        ? '<p style="color:var(--text-muted);font-size:13px">No blockers reported this week 🎉</p>'
+        : `<ul class="blocker-list">${sortedBlockers.map(([name, count]) => `
+          <li>
+            <span class="blocker-name">${name}</span>
+            <span class="blocker-bar-wrap"><span class="blocker-bar" style="width:${Math.round((count/maxBlocker)*100)}%"></span></span>
+            <span class="blocker-count">${count}</span>
+          </li>`).join('')}</ul>`
+      }
+    </div>
+    <!-- Individual responses table -->
+    <div class="chart-card wide">
+      <h3>Individual responses — ${week}</h3>
+      ${total === 0
+        ? '<p style="color:var(--text-muted);font-size:13px">No responses yet for this week.</p>'
+        : `<table class="response-table">
+          <thead><tr>
+            <th>Teammate</th><th>Workload</th><th>Morale</th><th>Blockers</th><th>Highlight</th><th>Concern</th>
+          </tr></thead>
+          <tbody>${responses.map(r => `
+            <tr>
+              <td><strong>${r.respondent}</strong><br><span style="color:var(--text-muted);font-size:11px">${new Date(r.submitted_at).toLocaleDateString()}</span></td>
+              <td>${r.answers.workload ? `<span class="pill pill-${r.answers.workload}">${r.answers.workload}/5</span>` : '—'}</td>
+              <td>${r.answers.morale   ? `<span class="pill pill-${r.answers.morale}">${r.answers.morale}/5</span>` : '—'}</td>
+              <td style="font-size:12px">${(r.answers.blockers||[]).join(', ') || '—'}</td>
+              <td style="font-size:12px;color:var(--text-muted)">${r.answers.highlight || '—'}</td>
+              <td style="font-size:12px;color:var(--text-muted)">${r.answers.concern   || '—'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`
+      }
+    </div>
+  </div>`;
+
+  // Workload bar chart
+  const labels = ['1 — Very light','2 — Light','3 — About right','4 — Heavy','5 — Overloaded'];
+  const wCounts = labels.map((_, i) => workloads.filter(w => w === i+1).length);
+  const mCounts = labels.map((_, i) => morales.filter(m => m === i+1).length);
+
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const textColor  = isDark ? '#c2c0b6' : '#3d3d3a';
+  const gridColor  = isDark ? '#3a3a38' : '#e2e0d8';
+
+  Chart.defaults.color = textColor;
+
+  new Chart(document.getElementById('workload-chart'), {
+    type: 'bar',
+    data: {
+      labels: ['1','2','3','4','5'],
+      datasets: [{ data: wCounts, backgroundColor: ['#9FE1CB','#5DCAA5','#FAC775','#EF9F27','#D85A30'], borderRadius: 6, borderSkipped: false }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: textColor } },
+        y: { grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1, precision: 0 }, beginAtZero: true }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('morale-chart'), {
+    type: 'bar',
+    data: {
+      labels: ['1','2','3','4','5'],
+      datasets: [{ data: mCounts, backgroundColor: ['#F7C1C1','#F09595','#FAC775','#9FE1CB','#5DCAA5'], borderRadius: 6, borderSkipped: false }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: textColor } },
+        y: { grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1, precision: 0 }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ─── Demo mode (when GitHub API not configured) ───────────────────────────
+function renderDemo() {
+  const week = getISOWeek();
+  document.getElementById('week-label').textContent = week + ' (demo)';
+  document.getElementById('prev-btn').disabled = true;
+  document.getElementById('next-btn').disabled = true;
+
+  const sampleResponses = [
+    { respondent: 'alice', submitted_at: new Date().toISOString(), answers: { workload: 3, morale: 4, blockers: ['No blockers'], highlight: 'Completed R2.3 integration tests', concern: null }},
+    { respondent: 'bob',   submitted_at: new Date().toISOString(), answers: { workload: 4, morale: 3, blockers: ['Waiting on another team', 'Infrastructure / environment issues'], highlight: null, concern: 'Staging env was down twice this week' }},
+    { respondent: 'carol', submitted_at: new Date().toISOString(), answers: { workload: 2, morale: 5, blockers: ['No blockers'], highlight: 'Great team retrospective!', concern: null }},
+    { respondent: 'dave',  submitted_at: new Date().toISOString(), answers: { workload: 5, morale: 2, blockers: ['Technical debt / legacy issues', 'Unclear requirements'], highlight: null, concern: 'Need to revisit the verifier portal spec — still unclear' }},
+  ];
+
+  renderDashboard(sampleResponses, week);
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadWeeks();
+});
+</script>
+</body>
+</html>
