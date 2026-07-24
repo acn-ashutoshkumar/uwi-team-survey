@@ -1,6 +1,6 @@
 # UWI Team Survey System
 
-Automated weekly/monthly team pulse survey built entirely on GitHub — no external services needed (except Gmail for email notifications).
+Automated weekly/monthly team pulse survey built entirely on GitHub — no external services needed.
 
 ## How it works
 
@@ -9,7 +9,7 @@ Every Monday 9am UTC
         ↓
 GitHub Actions opens a GitHub Issue (survey form)
         ↓
-Teammates get an email with a direct link
+Each assignee gets an individual email on their Accenture Outlook
         ↓
 Each teammate fills the issue checkboxes and closes it
         ↓
@@ -23,8 +23,6 @@ Admin opens dashboard (GitHub Pages) → sees charts + table
 ## Setup (one-time, ~10 minutes)
 
 ### 1. Copy files into your repo
-
-Place all these files into your GitHub repository:
 
 ```
 .github/
@@ -45,34 +43,43 @@ responses/          ← auto-created by the bot
 - Set `schedule` cron (weekly or monthly)
 - Optionally customise the questions
 
+```yaml
+team:
+  - "acn-ashutoshkumar"
+  - "acn-urvashiisharma"
+  - "Prasath-7"
+```
+
 ### 3. Create the issue label
 
 In your GitHub repo: **Issues → Labels → New label**
 - Name: `team-survey`
-- Color: any (suggested: `#EEEDFE`)
+- Color: `#534AB7`
 
-### 4. Set up GitHub Secrets
+### 4. Teammates — verify your GitHub email
 
-Go to: **Settings → Secrets and variables → Actions → New repository secret**
+No secrets or passwords needed. GitHub automatically emails each assignee when a survey issue is created.
 
-| Secret name | Value |
-|---|---|
-| `MAIL_USERNAME` | Your Gmail address (e.g. `uwi-surveys@gmail.com`) |
-| `MAIL_PASSWORD` | A Gmail **App Password** (not your account password — [generate here](https://myaccount.google.com/apppasswords)) |
-| `SURVEY_RECIPIENTS` | Comma-separated emails of all teammates |
+Each teammate must verify their Accenture email is set as primary:
 
-### 5. Enable GitHub Pages for the dashboard
+**GitHub → Settings → Emails → Primary email**
 
-**Settings → Pages → Source: Deploy from branch → Branch: main → Folder: /dashboard**
-
-Your dashboard will be at: `https://{org}.github.io/{repo}/`
-
-### 6. Configure the dashboard
+### 5. Configure the dashboard
 
 Edit `dashboard/index.html`, lines 230–231:
+
 ```js
-const GITHUB_OWNER = "your-org-or-username";
-const GITHUB_REPO  = "your-repo-name";
+const GITHUB_OWNER = "acn-ashutoshkumar";
+const GITHUB_REPO  = "uwi-team-survey";
+```
+
+### 6. Enable GitHub Pages for the dashboard
+
+**Settings → Pages → Source: Deploy from branch → Branch: master → Folder: /dashboard**
+
+Your dashboard will be at:
+```
+https://acn-ashutoshkumar.github.io/uwi-team-survey/
 ```
 
 ### 7. Test it
@@ -91,14 +98,14 @@ Edit `.github/workflows/survey-trigger.yml`, the `cron` line:
 | Every 2 weeks (1st & 15th) | `0 9 1,15 * *` |
 | Monthly (1st of month) | `0 9 1 * *` |
 
-Then also update `survey-config.yml` `schedule:` field (for documentation).
+Then also update `survey-config.yml` `schedule:` field.
 
 ---
 
 ## Adding or changing questions
 
-Edit `survey-config.yml` — the questions list.  
-Then update `.github/ISSUE_TEMPLATE/survey.yml` to match.  
+Edit `survey-config.yml` — the questions list.
+Then update `.github/ISSUE_TEMPLATE/survey.yml` to match.
 The parser in `survey-collect.yml` looks for section headings that match the `label:` field — keep them consistent.
 
 ---
@@ -107,23 +114,20 @@ The parser in `survey-collect.yml` looks for section headings that match the `la
 
 ```
 responses/
-  2025-W04/
-    alice.json
-    bob.json
-    carol.json
-  2025-W05/
-    alice.json
-    dave.json
+  2026-W30/
+    acn-ashutoshkumar.json
+    acn-urvashiisharma.json
+    Prasath-7.json
 ```
 
 ---
 
 ## Troubleshooting
 
-**Survey issue not created:** Check Actions tab for errors. Most common: MAIL_* secrets missing.
+**Survey issue not created:** Check Actions tab for errors. Make sure `team-survey` label exists in the repo.
 
 **Response not collected:** The workflow triggers on issue `closed`. Make sure the issue has the `team-survey` label.
 
-**Dashboard shows demo data:** Set `GITHUB_OWNER` and `GITHUB_REPO` correctly in `dashboard/index.html`.
+**Email not received:** Teammate should check their GitHub primary email — **GitHub → Settings → Emails → Primary email** — and make sure it is their Accenture email.
 
-**Email not sent:** Make sure `MAIL_PASSWORD` is a Gmail App Password, not your regular password. 2FA must be on for App Passwords to work.
+**Dashboard shows demo data:** Set `GITHUB_OWNER` and `GITHUB_REPO` correctly in `dashboard/index.html` and make sure GitHub Pages is enabled.
