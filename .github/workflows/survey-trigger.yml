@@ -1,0 +1,162 @@
+name: "📋 Open Weekly Survey"
+
+on:
+  schedule:
+    # Weekly: Every Monday at 9:00 AM UTC
+    # Change to "0 9 1 * *" for monthly (1st of every month)
+    - cron: "0 9 * * 1"
+
+  # Also allow manual trigger from GitHub UI (Actions tab → Run workflow)
+  workflow_dispatch:
+    inputs:
+      custom_title:
+        description: "Custom survey title (optional)"
+        required: false
+        default: ""
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  open-survey:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up week label
+        id: week
+        run: |
+          WEEK=$(date +"%Y-W%V")
+          DATE=$(date +"%d %b %Y")
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+
+      - name: Read team members from config
+        id: config
+        run: |
+          # Parse team members from survey-config.yml
+          ASSIGNEES=$(python3 -c "
+          import yaml, json
+          with open('survey-config.yml') as f:
+              cfg = yaml.safe_load(f)
+          team = cfg['survey']['team']
+          print(','.join(team))
+          ")
+          echo "assignees=$ASSIGNEES" >> $GITHUB_OUTPUT
+          LABEL=$(python3 -c "
+          import yaml
+          with open('survey-config.yml') as f:
+              cfg = yaml.safe_load(f)
+          print(cfg['survey']['issue_label'])
+          ")
+          echo "label=$LABEL" >> $GITHUB_OUTPUT
+
+      - name: Create survey issue via GitHub API
+        id: create_issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const week = "${{ steps.week.outputs.week }}";
+            const date = "${{ steps.week.outputs.date }}";
+            const assigneesStr = "${{ steps.config.outputs.assignees }}";
+            const assignees = assigneesStr.split(',').map(a => a.trim()).filter(Boolean);
+            const label = "${{ steps.config.outputs.label }}";
+            const customTitle = "${{ github.event.inputs.custom_title }}";
+
+            const title = customTitle
+              ? customTitle
+              : `[SURVEY] Team Pulse — ${week} (${date})`;
+
+            const body = `## 👋 UWI Weekly Team Pulse
+            **Week:** ${week} — ${date}
+            Please fill this out by **end of day Friday**. It takes ~2 minutes.
+
+            ---
+
+            ### 1. Workload this week
+            *How would you rate your workload?*
+            - [ ] 1 — Very light
+            - [ ] 2 — Light
+            - [ ] 3 — About right
+            - [ ] 4 — Heavy
+            - [ ] 5 — Overloaded
+
+            ---
+
+            ### 2. Blockers
+            *Are you facing any blockers? (check all that apply)*
+            - [ ] Technical debt / legacy issues
+            - [ ] Waiting on another team
+            - [ ] Unclear requirements
+            - [ ] Infrastructure / environment issues
+            - [ ] No blockers
+
+            ---
+
+            ### 3. Team morale
+            *How is team morale this week?*
+            - [ ] 1 — Low
+            - [ ] 2 — Below average
+            - [ ] 3 — OK
+            - [ ] 4 — Good
+            - [ ] 5 — Great
+
+            ---
+
+            ### 4. Weekly highlight *(optional)*
+            <!-- Write one thing that went well this week -->
+
+
+            ---
+
+            ### 5. Concern or suggestion *(optional)*
+            <!-- Anything the team or leadership should know? -->
+
+
+            ---
+            _Once you've filled this in, close the issue. Your response will be auto-collected._`;
+
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: [label],
+              assignees: assignees,
+            });
+
+            console.log(`Created issue #${issue.data.number}: ${issue.data.html_url}`);
+            core.setOutput('issue_number', issue.data.number);
+            core.setOutput('issue_url', issue.data.html_url);
+
+      - name: Send email notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          # Store credentials as GitHub repository secrets:
+          #   MAIL_USERNAME  — sender Gmail address
+          #   MAIL_PASSWORD  — Gmail App Password (not your account password)
+          #   SURVEY_RECIPIENTS — comma-separated list of team emails
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "📋 [UWI Team] Weekly Survey is open — ${{ steps.week.outputs.week }}"
+          to: ${{ secrets.SURVEY_RECIPIENTS }}
+          from: "UWI Surveys <${{ secrets.MAIL_USERNAME }}>"
+          body: |
+            Hi team,
+
+            The weekly team pulse survey is now open for the week of ${{ steps.week.outputs.date }}.
+
+            👉 Fill it out here: ${{ steps.create_issue.outputs.issue_url }}
+
+            It takes ~2 minutes. Please complete it by end of day Friday.
+
+            Once done, close the issue to mark your response as submitted.
+
+            ––
+            UWI Platform Team
+            This is an automated message from the UWI Survey Bot.

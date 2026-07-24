@@ -1,0 +1,115 @@
+name: "📥 Collect Survey Response"
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  issues: read
+  contents: write
+
+jobs:
+  collect-response:
+    runs-on: ubuntu-latest
+
+    # Only run for issues with the survey label
+    if: contains(github.event.issue.labels.*.name, 'team-survey')
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Parse and save response
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+
+            // --- Parse workload rating (1-5) ---
+            function parseRating(section, body) {
+              const lines = body.split('\n');
+              let inSection = false;
+              for (const line of lines) {
+                if (line.includes(section)) { inSection = true; continue; }
+                if (inSection && line.trim().startsWith('- [x]')) {
+                  const match = line.match(/(\d)/);
+                  return match ? parseInt(match[1]) : null;
+                }
+                if (inSection && line.trim().startsWith('---')) break;
+              }
+              return null;
+            }
+
+            // --- Parse checkboxes (multiple select) ---
+            function parseCheckboxes(section, body) {
+              const lines = body.split('\n');
+              let inSection = false;
+              const selected = [];
+              for (const line of lines) {
+                if (line.includes(section)) { inSection = true; continue; }
+                if (inSection && line.trim().startsWith('- [x]')) {
+                  selected.push(line.replace(/- \[x\]\s*/i, '').trim());
+                }
+                if (inSection && line.trim().startsWith('---')) break;
+              }
+              return selected;
+            }
+
+            // --- Parse free text (textarea between section and next ---) ---
+            function parseText(section, body) {
+              const lines = body.split('\n');
+              let inSection = false;
+              let collecting = false;
+              const textLines = [];
+              for (const line of lines) {
+                if (line.includes(section)) { inSection = true; continue; }
+                if (inSection && line.startsWith('<!--')) { collecting = true; continue; }
+                if (inSection && collecting) {
+                  if (line.trim() === '---') break;
+                  if (!line.startsWith('-->')) textLines.push(line);
+                }
+              }
+              return textLines.join('\n').trim() || null;
+            }
+
+            const response = {
+              issue_number: issue.number,
+              issue_title: issue.title,
+              respondent: issue.closed_by?.login || issue.user?.login || 'unknown',
+              submitted_at: new Date().toISOString(),
+              week: (() => {
+                const d = new Date();
+                const startOfYear = new Date(d.getFullYear(), 0, 1);
+                const weekNum = Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+                return `${d.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
+              })(),
+              answers: {
+                workload: parseRating('Workload this week', body),
+                blockers: parseCheckboxes('Blockers', body),
+                morale: parseRating('Team morale', body),
+                highlight: parseText('Weekly highlight', body),
+                concern: parseText('Concern or suggestion', body),
+              }
+            };
+
+            // Save to responses/{week}/{respondent}.json
+            const dir = path.join('responses', response.week);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+            const filePath = path.join(dir, `${response.respondent}.json`);
+            fs.writeFileSync(filePath, JSON.stringify(response, null, 2));
+            console.log(`Saved response for ${response.respondent} to ${filePath}`);
+
+      - name: Commit response file
+        run: |
+          git config user.name "survey-bot"
+          git config user.email "survey-bot@users.noreply.github.com"
+          git add responses/
+          git diff --staged --quiet || git commit -m "survey: add response from ${{ github.event.issue.user.login }} for ${{ github.event.issue.title }}"
+          git push

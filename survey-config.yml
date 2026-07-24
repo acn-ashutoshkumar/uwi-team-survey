@@ -1,0 +1,63 @@
+# =============================================================
+#  UWI Team Survey Configuration
+#  Edit this file to change questions, schedule, or team members
+# =============================================================
+
+survey:
+  title: "UWI Weekly Team Pulse"
+  description: "Quick check-in to help the team stay aligned and unblock issues early."
+
+  # Schedule options:
+  #   Weekly (every Monday 9am UTC):  "0 9 * * 1"
+  #   Bi-weekly (every other Monday): Use workflow dispatch manually
+  #   Monthly (1st of month 9am UTC): "0 9 1 * *"
+  schedule: "0 9 * * 1"   # Weekly — Monday 9am UTC
+  frequency_label: "weekly"
+
+  # GitHub usernames of all teammates who should be assigned/notified
+  team:
+    - "teammate-1"
+    - "teammate-2"
+    - "teammate-3"
+    - "teammate-4"
+    # Add more GitHub usernames here
+
+  # Admin GitHub username — dashboard is deployed for this person
+  admin: "admin-username"
+
+  # Label applied to all survey issues (create this label in your repo first)
+  issue_label: "team-survey"
+
+questions:
+  - id: "workload"
+    type: "rating"           # 1 = Very low, 5 = Very high
+    label: "Workload this week"
+    text: "How would you rate your workload this week?"
+    options: ["1 — Very light", "2 — Light", "3 — About right", "4 — Heavy", "5 — Overloaded"]
+
+  - id: "blockers"
+    type: "checkbox"
+    label: "Blockers"
+    text: "Are you facing any blockers? (select all that apply)"
+    options:
+      - "Technical debt / legacy issues"
+      - "Waiting on another team"
+      - "Unclear requirements"
+      - "Infrastructure / environment issues"
+      - "No blockers"
+
+  - id: "morale"
+    type: "rating"
+    label: "Team morale"
+    text: "How is team morale this week?"
+    options: ["1 — Low", "2 — Below average", "3 — OK", "4 — Good", "5 — Great"]
+
+  - id: "highlight"
+    type: "text"
+    label: "Weekly highlight"
+    text: "One thing that went well this week? (optional)"
+
+  - id: "concern"
+    type: "text"
+    label: "Concern or suggestion"
+    text: "Anything the team or leadership should know? (optional)"
