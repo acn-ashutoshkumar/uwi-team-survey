@@ -16,24 +16,22 @@ survey:
 
   # GitHub usernames of all teammates who should be assigned/notified
   team:
-    - "teammate-1"
-    - "teammate-2"
-    - "teammate-3"
-    - "teammate-4"
+   - "acn-ashutoshkumar" 
+   - "acn-urvashiisharma"
     # Add more GitHub usernames here
 
   # Admin GitHub username — dashboard is deployed for this person
-  admin: "admin-username"
+  admin: "acn-ashutoshkumar"
 
   # Label applied to all survey issues (create this label in your repo first)
   issue_label: "team-survey"
 
 questions:
-  - id: "workload"
-    type: "rating"           # 1 = Very low, 5 = Very high
-    label: "Workload this week"
-    text: "How would you rate your workload this week?"
-    options: ["1 — Very light", "2 — Light", "3 — About right", "4 — Heavy", "5 — Overloaded"]
+ - id: "morale"
+    type: "rating"
+    label: "Team morale"
+    text: "How is team morale this week?"
+    options: ["1 — Low", "2 — Below average", "3 — OK", "4 — Good", "5 — Great"]
 
   - id: "blockers"
     type: "checkbox"
@@ -46,12 +44,7 @@ questions:
       - "Infrastructure / environment issues"
       - "No blockers"
 
-  - id: "morale"
-    type: "rating"
-    label: "Team morale"
-    text: "How is team morale this week?"
-    options: ["1 — Low", "2 — Below average", "3 — OK", "4 — Good", "5 — Great"]
-
+ 
   - id: "highlight"
     type: "text"
     label: "Weekly highlight"
