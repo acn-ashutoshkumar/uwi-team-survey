@@ -1,43 +1,15 @@
 name: "📋 Team Survey"
 description: "Weekly team pulse check-in"
-title: "[SURVEY] Team Pulse — $WEEK"
+title: "[SURVEY] Team Pulse"
 labels: ["team-survey"]
-assignees: []  # Populated dynamically by the workflow
 
 body:
   - type: markdown
     attributes:
       value: |
         ## 👋 UWI Weekly Team Pulse
-        Please fill this out by **end of day Friday**. It takes ~2 minutes.
-        Your answers help the team stay aligned and surface blockers early.
+        Please fill this.
         ---
-
-  - type: dropdown
-    id: workload
-    attributes:
-      label: "Workload this week"
-      description: "How would you rate your workload this week?"
-      options:
-        - "1 — Very light"
-        - "2 — Light"
-        - "3 — About right"
-        - "4 — Heavy"
-        - "5 — Overloaded"
-    validations:
-      required: true
-
-  - type: checkboxes
-    id: blockers
-    attributes:
-      label: "Blockers"
-      description: "Are you facing any blockers? (select all that apply)"
-      options:
-        - label: "Technical debt / legacy issues"
-        - label: "Waiting on another team"
-        - label: "Unclear requirements"
-        - label: "Infrastructure / environment issues"
-        - label: "No blockers"
 
   - type: dropdown
     id: morale
@@ -53,12 +25,23 @@ body:
     validations:
       required: true
 
+  - type: checkboxes
+    id: blockers
+    attributes:
+      label: "Blockers"
+      description: "Are you facing any blockers? (select all that apply)"
+      options:
+        - label: "Technical debt / legacy issues"
+        - label: "Waiting on another team"
+        - label: "Unclear requirements"
+        - label: "Infrastructure / environment issues"
+        - label: "No blockers"
+
   - type: textarea
     id: highlight
     attributes:
       label: "Weekly highlight"
       description: "One thing that went well this week? (optional)"
-      placeholder: "e.g. We completed the R2.3 integration tests ahead of schedule"
     validations:
       required: false
 
@@ -67,12 +50,5 @@ body:
     attributes:
       label: "Concern or suggestion"
       description: "Anything the team or leadership should know? (optional)"
-      placeholder: "e.g. The staging environment has been flaky — needs attention"
     validations:
       required: false
-
-  - type: markdown
-    attributes:
-      value: |
-        ---
-        _Once submitted, close this issue. Your response will be automatically collected within a few minutes._
