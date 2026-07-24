@@ -1,0 +1,16 @@
+{
+  "issue_number": 2,
+  "issue_title": "[SURVEY] Team Pulse — 2026-W30 (24 Jul 2026)",
+  "respondent": "github-actions[bot]",
+  "submitted_at": "2026-07-24T11:23:30.095Z",
+  "week": "2026-W30",
+  "answers": {
+    "workload": 3,
+    "blockers": [
+      "Waiting on another team"
+    ],
+    "morale": 3,
+    "highlight": null,
+    "concern": null
+  }
+}
