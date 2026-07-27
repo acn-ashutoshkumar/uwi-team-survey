@@ -48,8 +48,7 @@ jobs:
           ")
           echo "label=$LABEL" >> $GITHUB_OUTPUT
 
-      - name: Create survey issue via GitHub API
-        id: create_issue
+      - name: Create one issue per team member
         uses: actions/github-script@v7
         with:
           script: |
@@ -60,71 +59,55 @@ jobs:
             const label = "${{ steps.config.outputs.label }}";
             const customTitle = "${{ github.event.inputs.custom_title }}";
 
-            const title = customTitle
-              ? customTitle
-              : `[SURVEY] Team Pulse - ${week} (${date})`;
+            for (const member of assignees) {
+              const title = customTitle
+                ? `[SURVEY] ${customTitle} - ${member} - ${week}`
+                : `[SURVEY] Team Pulse - ${week} (${date}) - ${member}`;
 
-            const body = [
-              "## UWI Weekly Team Pulse",
-              `**Week:** ${week} - ${date}`,
-              "Please fill this out by **end of day Friday**. It takes ~2 minutes.",
-              "",
-              "Instructions: For rating questions, tick ONLY ONE checkbox. For blockers, tick all that apply.",
-              "",
-              "### 1. Team morale",
-              "*How is team morale this week? (select ONE)*",
-              "- [ ] 1 - Low",
-              "- [ ] 2 - Below average",
-              "- [ ] 3 - OK",
-              "- [ ] 4 - Good",
-              "- [ ] 5 - Great",
-              "",
-              "### 2. Blockers",
-              "*Are you facing any blockers? (select all that apply)*",
-              "- [ ] Technical debt / legacy issues",
-              "- [ ] Waiting on another team",
-              "- [ ] Unclear requirements",
-              "- [ ] Infrastructure / environment issues",
-              "- [ ] No blockers",
-              "",
-              "### 3. Weekly highlight *(optional)*",
-              "**Write your answer below this line:**",
-              "",
-              "",
-              "### 4. Concern or suggestion *(optional)*",
-              "**Write your answer below this line:**",
-              "",
-              "",
-              "*Once you have filled this in, click **Close issue** at the bottom. Your response will be auto-collected.*"
-            ].join("\n");
+              const body = [
+                `## UWI Weekly Team Pulse`,
+                `**Hi @${member}!**`,
+                `**Week:** ${week} - ${date}`,
+                ``,
+                `Please fill this out by **end of day Friday**. It takes ~2 minutes.`,
+                ``,
+                `Instructions: For rating questions, tick ONLY ONE checkbox. For blockers, tick all that apply. Then click **Close issue** at the bottom.`,
+                ``,
+                `### 1. Team morale`,
+                `*How is team morale this week? (select ONE)*`,
+                `- [ ] 1 - Low`,
+                `- [ ] 2 - Below average`,
+                `- [ ] 3 - OK`,
+                `- [ ] 4 - Good`,
+                `- [ ] 5 - Great`,
+                ``,
+                `### 2. Blockers`,
+                `*Are you facing any blockers? (select all that apply)*`,
+                `- [ ] Technical debt / legacy issues`,
+                `- [ ] Waiting on another team`,
+                `- [ ] Unclear requirements`,
+                `- [ ] Infrastructure / environment issues`,
+                `- [ ] No blockers`,
+                ``,
+                `### 3. Weekly highlight *(optional)*`,
+                `**Write your answer below this line:**`,
+                ``,
+                ``,
+                `### 4. Concern or suggestion *(optional)*`,
+                `**Write your answer below this line:**`,
+                ``,
+                ``,
+                `*Once done, click Close issue below. Your response will be auto-collected.*`
+              ].join("\n");
 
-            const issue = await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: title,
-              body: body,
-              labels: [label],
-              assignees: assignees,
-            });
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: [label],
+                assignees: [member],
+              });
 
-            console.log(`Created issue #${issue.data.number}: ${issue.data.html_url}`);
-            core.setOutput('issue_number', issue.data.number);
-            core.setOutput('issue_url', issue.data.html_url);
-
-      - name: Post full survey link as comment
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const issueNumber = ${{ steps.create_issue.outputs.issue_number }};
-            const issueUrl = "${{ steps.create_issue.outputs.issue_url }}";
-            const week = "${{ steps.week.outputs.week }}";
-            const date = "${{ steps.week.outputs.date }}";
-            const assigneesStr = "${{ steps.config.outputs.assignees }}";
-            const mentions = assigneesStr.split(',').map(a => `@${a.trim()}`).join(' ');
-
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: `Hi ${mentions}\n\nThe **${week} (${date})** team survey is now open!\n\nFill it out here: ${issueUrl}\n\nPlease complete by **end of day Friday** and close the issue when done.`
-            });
+              console.log(`Created issue #${issue.data.number} for ${member}: ${issue.data.html_url}`);
+            }
