@@ -11,7 +11,7 @@ permissions:
 jobs:
   collect-response:
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.labels.*.name, 'team-survey')
+    if: contains(github.event.issue.labels.*.name, 'team-survey') && contains(toJson(github.event.issue.assignees.*.login), github.event.sender.login)
 
     steps:
       - name: Checkout repo
@@ -29,17 +29,17 @@ jobs:
             const issue = context.payload.issue;
             const body = issue.body || '';
 
-            // Respondent = person who closed the issue
+            // Person who closed the issue = respondent
             const respondent = context.payload.sender?.login || issue.user?.login || 'unknown';
 
-            // Extract week from issue title e.g. "2026-W30"
+            // Extract week from issue title
             const titleMatch = issue.title.match(/(\d{4}-W\d{2})/);
             const d = new Date();
             const startOfYear = new Date(d.getFullYear(), 0, 1);
             const weekNum = Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
             const week = titleMatch ? titleMatch[1] : `${d.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
 
-            // Parse single-select rating — first checked box
+            // Parse single-select rating (first checked box only)
             function parseRating(section, body) {
               const lines = body.split('\n');
               let inSection = false;
@@ -49,13 +49,12 @@ jobs:
                   const match = line.match(/(\d)/);
                   return match ? parseInt(match[1]) : null;
                 }
-                if (inSection && line.trim() === '') continue;
                 if (inSection && line.trim().startsWith('###')) break;
               }
               return null;
             }
 
-            // Parse checkboxes — multiple
+            // Parse checkboxes (multiple)
             function parseCheckboxes(section, body) {
               const lines = body.split('\n');
               let inSection = false;
@@ -70,22 +69,29 @@ jobs:
               return selected;
             }
 
-            // Parse free text written below "Write your answer below this line:"
-            function parseText(section, body) {
-              const lines = body.split('\n');
-              let inSection = false;
-              let afterMarker = false;
-              const textLines = [];
-              for (const line of lines) {
-                if (line.includes('### ') && line.includes(section)) { inSection = true; continue; }
-                if (inSection && line.includes('Write your answer below this line:')) { afterMarker = true; continue; }
-                if (inSection && afterMarker) {
-                  if (line.trim().startsWith('###') || line.trim() === '*Once done') break;
-                  if (line.trim()) textLines.push(line.trim());
+            // Parse highlight and concern from comments
+            async function parseComments(issueNumber) {
+              let highlight = null, concern = null;
+              try {
+                const comments = await github.rest.issues.listComments({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                });
+                // Find comment by the respondent
+                for (const comment of comments.data) {
+                  if (comment.user.login !== respondent) continue;
+                  const body = comment.body || '';
+                  const hMatch = body.match(/Highlight:\s*(.+)/i);
+                  const cMatch = body.match(/Concern:\s*(.+)/i);
+                  if (hMatch) highlight = hMatch[1].trim();
+                  if (cMatch) concern = cMatch[1].trim();
                 }
-              }
-              return textLines.join(' ').trim() || null;
+              } catch(e) { console.log('No comments found'); }
+              return { highlight, concern };
             }
+
+            const { highlight, concern } = await parseComments(issue.number);
 
             const response = {
               issue_number: issue.number,
@@ -96,12 +102,11 @@ jobs:
               answers: {
                 morale:    parseRating('Team morale', body),
                 blockers:  parseCheckboxes('Blockers', body),
-                highlight: parseText('Weekly highlight', body),
-                concern:   parseText('Concern or suggestion', body),
+                highlight: highlight,
+                concern:   concern,
               }
             };
 
-            // Save to responses/{week}/{respondent}.json
             const dir = path.join('responses', week);
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
