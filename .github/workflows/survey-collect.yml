@@ -101,8 +101,9 @@ jobs:
               week: week,
               answers: {
                 morale:    parseRating('Team morale', body),
+                workload:  parseRating('Workload', body),
                 blockers:  parseCheckboxes('Blockers', body),
-                highlight: highlight,
+                highlight: parseCheckboxes('Weekly highlight', body),
                 concern:   concern,
               }
             };
