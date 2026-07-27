@@ -1,4 +1,4 @@
-name: "📥 Collect Survey Response"
+name: "Collect Survey Response"
 
 on:
   issues:
@@ -29,65 +29,63 @@ jobs:
             const issue = context.payload.issue;
             const body = issue.body || '';
 
-            // Use the person who CLOSED the issue (the respondent)
-            // Fall back to issue creator if closed_by not available
+            // Respondent = person who closed the issue
             const respondent = context.payload.sender?.login || issue.user?.login || 'unknown';
 
-            // --- Parse single-select rating (first checked box only) ---
+            // Extract week from issue title e.g. "2026-W30"
+            const titleMatch = issue.title.match(/(\d{4}-W\d{2})/);
+            const d = new Date();
+            const startOfYear = new Date(d.getFullYear(), 0, 1);
+            const weekNum = Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+            const week = titleMatch ? titleMatch[1] : `${d.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
+
+            // Parse single-select rating — first checked box
             function parseRating(section, body) {
               const lines = body.split('\n');
               let inSection = false;
               for (const line of lines) {
-                if (line.includes(`### `) && line.includes(section)) { inSection = true; continue; }
-                if (inSection && line.trim().startsWith('- [x]')) {
+                if (line.includes('### ') && line.includes(section)) { inSection = true; continue; }
+                if (inSection && (line.trim().startsWith('- [x]') || line.trim().startsWith('- [X]'))) {
                   const match = line.match(/(\d)/);
                   return match ? parseInt(match[1]) : null;
                 }
-                if (inSection && line.trim().startsWith('---')) break;
+                if (inSection && line.trim() === '') continue;
+                if (inSection && line.trim().startsWith('###')) break;
               }
               return null;
             }
 
-            // --- Parse checkboxes (multiple select) ---
+            // Parse checkboxes — multiple
             function parseCheckboxes(section, body) {
               const lines = body.split('\n');
               let inSection = false;
               const selected = [];
               for (const line of lines) {
-                if (line.includes(`### `) && line.includes(section)) { inSection = true; continue; }
+                if (line.includes('### ') && line.includes(section)) { inSection = true; continue; }
                 if (inSection && (line.trim().startsWith('- [x]') || line.trim().startsWith('- [X]'))) {
                   selected.push(line.replace(/- \[[xX]\]\s*/i, '').trim());
                 }
-                if (inSection && line.trim().startsWith('---')) break;
+                if (inSection && line.trim().startsWith('###')) break;
               }
               return selected;
             }
 
-            // --- Parse free text written below the "Write your answer" line ---
+            // Parse free text written below "Write your answer below this line:"
             function parseText(section, body) {
               const lines = body.split('\n');
               let inSection = false;
               let afterMarker = false;
               const textLines = [];
               for (const line of lines) {
-                if (line.includes(`### `) && line.includes(section)) { inSection = true; continue; }
-                if (inSection && line.includes('**Write your answer below this line:**')) {
-                  afterMarker = true;
-                  continue;
-                }
+                if (line.includes('### ') && line.includes(section)) { inSection = true; continue; }
+                if (inSection && line.includes('Write your answer below this line:')) { afterMarker = true; continue; }
                 if (inSection && afterMarker) {
-                  if (line.trim() === '---') break;
+                  if (line.trim().startsWith('###') || line.trim() === '*Once done') break;
                   if (line.trim()) textLines.push(line.trim());
                 }
               }
               return textLines.join(' ').trim() || null;
             }
-
-            // Get ISO week
-            const d = new Date();
-            const startOfYear = new Date(d.getFullYear(), 0, 1);
-            const weekNum = Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
-            const week = `${d.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
 
             const response = {
               issue_number: issue.number,
@@ -103,6 +101,7 @@ jobs:
               }
             };
 
+            // Save to responses/{week}/{respondent}.json
             const dir = path.join('responses', week);
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
@@ -110,10 +109,10 @@ jobs:
             fs.writeFileSync(filePath, JSON.stringify(response, null, 2));
             console.log(`Saved response for ${respondent} to ${filePath}`);
 
-      - name: Commit response file
+      - name: Commit response
         run: |
           git config user.name "survey-bot"
           git config user.email "survey-bot@users.noreply.github.com"
           git add responses/
-          git diff --staged --quiet || git commit -m "survey: response from ${{ github.event.sender.login }} — ${{ github.event.issue.title }}"
+          git diff --staged --quiet || git commit -m "survey: response from ${{ github.event.sender.login }} - ${{ github.event.issue.title }}"
           git push
