@@ -102,5 +102,5 @@ jobs:
                 assignees: [member],
               });
 
-              console.log(`Created issue #${issue.data.number} for ${member}: ${issue.data.html_url}`);
+              console.log(`Created issue #${issue.data.number} for ${member}`);
             }
