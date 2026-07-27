@@ -2,11 +2,7 @@ name: "📋 Open Weekly Survey"
 
 on:
   schedule:
-    # Weekly: Every Monday at 9:00 AM UTC
-    # Change to "0 9 1 * *" for monthly (1st of every month)
     - cron: "0 9 * * 1"
-
-  # Also allow manual trigger from GitHub UI (Actions tab → Run workflow)
   workflow_dispatch:
     inputs:
       custom_title:
@@ -36,9 +32,8 @@ jobs:
       - name: Read team members from config
         id: config
         run: |
-          # Parse team members from survey-config.yml
           ASSIGNEES=$(python3 -c "
-          import yaml, json
+          import yaml
           with open('survey-config.yml') as f:
               cfg = yaml.safe_load(f)
           team = cfg['survey']['team']
@@ -70,53 +65,45 @@ jobs:
               : `[SURVEY] Team Pulse — ${week} (${date})`;
 
             const body = `## 👋 UWI Weekly Team Pulse
-            **Week:** ${week} — ${date}
-            Please fill this out by **end of day Friday**. It takes ~2 minutes.
+**Week:** ${week} — ${date}
+Please fill this out by **end of day Friday**. It takes ~2 minutes.
 
-            ---
+> ⚠️ **Instructions:** For rating questions, tick ONLY ONE checkbox. For blockers, tick all that apply.
 
-            ### 1. Workload this week
-            *How would you rate your workload?*
-            - [ ] 1 — Very light
-            - [ ] 2 — Light
-            - [ ] 3 — About right
-            - [ ] 4 — Heavy
-            - [ ] 5 — Overloaded
+---
 
-            ---
+### 1. Team morale
+*How is team morale this week? (select ONE)*
+- [ ] 1 — Low
+- [ ] 2 — Below average
+- [ ] 3 — OK
+- [ ] 4 — Good
+- [ ] 5 — Great
 
-            ### 2. Blockers
-            *Are you facing any blockers? (check all that apply)*
-            - [ ] Technical debt / legacy issues
-            - [ ] Waiting on another team
-            - [ ] Unclear requirements
-            - [ ] Infrastructure / environment issues
-            - [ ] No blockers
+---
 
-            ---
+### 2. Blockers
+*Are you facing any blockers? (select all that apply)*
+- [ ] Technical debt / legacy issues
+- [ ] Waiting on another team
+- [ ] Unclear requirements
+- [ ] Infrastructure / environment issues
+- [ ] No blockers
 
-            ### 3. Team morale
-            *How is team morale this week?*
-            - [ ] 1 — Low
-            - [ ] 2 — Below average
-            - [ ] 3 — OK
-            - [ ] 4 — Good
-            - [ ] 5 — Great
+---
 
-            ---
-
-            ### 4. Weekly highlight *(optional)*
-            <!-- Write one thing that went well this week -->
+### 3. Weekly highlight *(optional)*
+**Write your answer below this line:**
 
 
-            ---
+---
 
-            ### 5. Concern or suggestion *(optional)*
-            <!-- Anything the team or leadership should know? -->
+### 4. Concern or suggestion *(optional)*
+**Write your answer below this line:**
 
 
-            ---
-            _Once you've filled this in, close the issue. Your response will be auto-collected._`;
+---
+*Once you have filled this in, click **Close issue** at the bottom. Your response will be auto-collected.*`;
 
             const issue = await github.rest.issues.create({
               owner: context.repo.owner,
@@ -131,32 +118,26 @@ jobs:
             core.setOutput('issue_number', issue.data.number);
             core.setOutput('issue_url', issue.data.html_url);
 
-      - name: Send email notification
-        uses: dawidd6/action-send-mail@v3
+      - name: Post full survey link as comment
+        uses: actions/github-script@v7
         with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          secure: true
-          # Store credentials as GitHub repository secrets:
-          #   MAIL_USERNAME  — sender Gmail address
-          #   MAIL_PASSWORD  — Gmail App Password (not your account password)
-          #   SURVEY_RECIPIENTS — comma-separated list of team emails
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "📋 [UWI Team] Weekly Survey is open — ${{ steps.week.outputs.week }}"
-          to: ${{ secrets.SURVEY_RECIPIENTS }}
-          from: "UWI Surveys <${{ secrets.MAIL_USERNAME }}>"
-          body: |
-            Hi team,
+          script: |
+            const issueNumber = ${{ steps.create_issue.outputs.issue_number }};
+            const issueUrl = "${{ steps.create_issue.outputs.issue_url }}";
+            const week = "${{ steps.week.outputs.week }}";
+            const date = "${{ steps.week.outputs.date }}";
+            const assigneesStr = "${{ steps.config.outputs.assignees }}";
+            const mentions = assigneesStr.split(',').map(a => `@${a.trim()}`).join(' ');
 
-            The weekly team pulse survey is now open for the week of ${{ steps.week.outputs.date }}.
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: `👋 ${mentions}
 
-            👉 Fill it out here: ${{ steps.create_issue.outputs.issue_url }}
+The **${week} (${date})** team survey is now open!
 
-            It takes ~2 minutes. Please complete it by end of day Friday.
+🔗 **Fill it out here:** ${issueUrl}
 
-            Once done, close the issue to mark your response as submitted.
-
-            ––
-            UWI Platform Team
-            This is an automated message from the UWI Survey Bot.
+Please complete by **end of day Friday** and close the issue when done.`
+            });
