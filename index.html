@@ -241,10 +241,11 @@ function renderDashboard(responses, week) {
       <div class="chart-card wide"><h3>Individual responses &mdash; ${week}</h3>
         ${total === 0
           ? '<p style="color:var(--text-muted);font-size:13px">No responses yet.</p>'
-          : `<table class="resp-table"><thead><tr><th>Teammate</th><th>Morale</th><th>Blockers</th><th>Highlight</th><th>Concern</th></tr></thead><tbody>
+          : `<table class="resp-table"><thead><tr><th>Teammate</th><th>Morale</th><th>Workload</th><th>Blockers</th><th>Highlight</th><th>Concern</th></tr></thead><tbody>
             ${responses.map(r => `<tr>
               <td><strong>${r.respondent}</strong><br><span style="color:var(--text-muted);font-size:11px">${new Date(r.submitted_at).toLocaleDateString()}</span></td>
               <td>${r.answers?.morale ? `<span class="pill p${r.answers.morale}">${r.answers.morale}/5</span>` : '--'}</td>
+                  <td>${r.answers?.workload ? `<span class="pill p${r.answers.workload}">${r.answers.workload}/5</span>` : '--'}</td>
               <td style="font-size:12px">${(r.answers?.blockers || []).join(', ') || '--'}</td>
               <td style="font-size:12px;color:var(--text-muted)">${r.answers?.highlight || '--'}</td>
               <td style="font-size:12px;color:var(--text-muted)">${r.answers?.concern || '--'}</td>
