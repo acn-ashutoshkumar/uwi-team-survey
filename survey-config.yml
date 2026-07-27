@@ -9,8 +9,10 @@ survey:
   schedule: "0 9 * * 1"
   frequency_label: "weekly"
   team:
-    - "acn-ashutoshkumar"
-    - "acn-shameethsuresh"
+  - "acn-ashutoshkumar"
+  - "acn-shameethsuresh"
+  - "Prasath-7"
+  - "acn-mohammadzameer"
   admin: "acn-ashutoshkumar"
   issue_label: "team-survey"
 
