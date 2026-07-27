@@ -2,17 +2,16 @@
 #  UWI Team Survey Configuration
 #  Edit this file to change questions, schedule, or team members
 # =============================================================
-
 survey:
   title: "UWI Weekly Team Pulse"
   description: "Quick check-in to help the team stay aligned and unblock issues early."
   schedule: "0 9 * * 1"
   frequency_label: "weekly"
   team:
-  - "acn-ashutoshkumar"
-  - "acn-shameethsuresh"
-  - "Prasath-7"
-  - "acn-mohammadzameer"
+    - "acn-ashutoshkumar"
+    - "acn-shameethsuresh"
+    - "Prasath-7"
+    - "acn-mohammadzameer"
   admin: "acn-ashutoshkumar"
   issue_label: "team-survey"
 
