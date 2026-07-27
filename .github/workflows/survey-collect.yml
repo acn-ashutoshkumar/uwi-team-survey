@@ -11,8 +11,6 @@ permissions:
 jobs:
   collect-response:
     runs-on: ubuntu-latest
-
-    # Only run for issues with the survey label
     if: contains(github.event.issue.labels.*.name, 'team-survey')
 
     steps:
@@ -31,12 +29,16 @@ jobs:
             const issue = context.payload.issue;
             const body = issue.body || '';
 
-            // --- Parse workload rating (1-5) ---
+            // Use the person who CLOSED the issue (the respondent)
+            // Fall back to issue creator if closed_by not available
+            const respondent = context.payload.sender?.login || issue.user?.login || 'unknown';
+
+            // --- Parse single-select rating (first checked box only) ---
             function parseRating(section, body) {
               const lines = body.split('\n');
               let inSection = false;
               for (const line of lines) {
-                if (line.includes(section)) { inSection = true; continue; }
+                if (line.includes(`### `) && line.includes(section)) { inSection = true; continue; }
                 if (inSection && line.trim().startsWith('- [x]')) {
                   const match = line.match(/(\d)/);
                   return match ? parseInt(match[1]) : null;
@@ -52,64 +54,66 @@ jobs:
               let inSection = false;
               const selected = [];
               for (const line of lines) {
-                if (line.includes(section)) { inSection = true; continue; }
-                if (inSection && line.trim().startsWith('- [x]')) {
-                  selected.push(line.replace(/- \[x\]\s*/i, '').trim());
+                if (line.includes(`### `) && line.includes(section)) { inSection = true; continue; }
+                if (inSection && (line.trim().startsWith('- [x]') || line.trim().startsWith('- [X]'))) {
+                  selected.push(line.replace(/- \[[xX]\]\s*/i, '').trim());
                 }
                 if (inSection && line.trim().startsWith('---')) break;
               }
               return selected;
             }
 
-            // --- Parse free text (textarea between section and next ---) ---
+            // --- Parse free text written below the "Write your answer" line ---
             function parseText(section, body) {
               const lines = body.split('\n');
               let inSection = false;
-              let collecting = false;
+              let afterMarker = false;
               const textLines = [];
               for (const line of lines) {
-                if (line.includes(section)) { inSection = true; continue; }
-                if (inSection && line.startsWith('<!--')) { collecting = true; continue; }
-                if (inSection && collecting) {
+                if (line.includes(`### `) && line.includes(section)) { inSection = true; continue; }
+                if (inSection && line.includes('**Write your answer below this line:**')) {
+                  afterMarker = true;
+                  continue;
+                }
+                if (inSection && afterMarker) {
                   if (line.trim() === '---') break;
-                  if (!line.startsWith('-->')) textLines.push(line);
+                  if (line.trim()) textLines.push(line.trim());
                 }
               }
-              return textLines.join('\n').trim() || null;
+              return textLines.join(' ').trim() || null;
             }
+
+            // Get ISO week
+            const d = new Date();
+            const startOfYear = new Date(d.getFullYear(), 0, 1);
+            const weekNum = Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+            const week = `${d.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
 
             const response = {
               issue_number: issue.number,
               issue_title: issue.title,
-              respondent: issue.closed_by?.login || issue.user?.login || 'unknown',
+              respondent: respondent,
               submitted_at: new Date().toISOString(),
-              week: (() => {
-                const d = new Date();
-                const startOfYear = new Date(d.getFullYear(), 0, 1);
-                const weekNum = Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
-                return `${d.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
-              })(),
+              week: week,
               answers: {
-                workload: parseRating('Workload this week', body),
-                blockers: parseCheckboxes('Blockers', body),
-                morale: parseRating('Team morale', body),
+                morale:    parseRating('Team morale', body),
+                blockers:  parseCheckboxes('Blockers', body),
                 highlight: parseText('Weekly highlight', body),
-                concern: parseText('Concern or suggestion', body),
+                concern:   parseText('Concern or suggestion', body),
               }
             };
 
-            // Save to responses/{week}/{respondent}.json
-            const dir = path.join('responses', response.week);
+            const dir = path.join('responses', week);
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
-            const filePath = path.join(dir, `${response.respondent}.json`);
+            const filePath = path.join(dir, `${respondent}.json`);
             fs.writeFileSync(filePath, JSON.stringify(response, null, 2));
-            console.log(`Saved response for ${response.respondent} to ${filePath}`);
+            console.log(`Saved response for ${respondent} to ${filePath}`);
 
       - name: Commit response file
         run: |
           git config user.name "survey-bot"
           git config user.email "survey-bot@users.noreply.github.com"
           git add responses/
-          git diff --staged --quiet || git commit -m "survey: add response from ${{ github.event.issue.user.login }} for ${{ github.event.issue.title }}"
+          git diff --staged --quiet || git commit -m "survey: response from ${{ github.event.sender.login }} — ${{ github.event.issue.title }}"
           git push
