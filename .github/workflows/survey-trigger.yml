@@ -64,7 +64,34 @@ jobs:
                 ? `[SURVEY] ${customTitle} - ${week}`
                 : `UWI Team Pulse - ${week} - ${member}`;
 
-              const body = `Hi @${member}, your UWI Team Pulse survey for ${week} is ready. Please open this issue on GitHub, fill in the checkboxes, and close it when done.`;
+              const body = [
+                `### 1. Team morale`,
+                `- [ ] 1 - Low`,
+                `- [ ] 2 - Below average`,
+                `- [ ] 3 - OK`,
+                `- [ ] 4 - Good`,
+                `- [ ] 5 - Great`,
+                ``,
+                `### 2. Workload`,
+                `- [ ] 1 - Very light`,
+                `- [ ] 2 - Light`,
+                `- [ ] 3 - About right`,
+                `- [ ] 4 - Heavy`,
+                `- [ ] 5 - Overloaded`,
+                ``,
+                `### 3. Blockers`,
+                `- [ ] Technical debt / legacy issues`,
+                `- [ ] Waiting on another team`,
+                `- [ ] Unclear requirements`,
+                `- [ ] Infrastructure / environment issues`,
+                `- [ ] No blockers`,
+                ``,
+                `### 4. Weekly highlight`,
+                `- [ ] Completed planned tasks`,
+                `- [ ] Good team collaboration`,
+                `- [ ] Resolved a blocker`,
+                `- [ ] Nothing significant`,
+              ].join("\n");
 
               const issue = await github.rest.issues.create({
                 owner: context.repo.owner,
@@ -76,38 +103,4 @@ jobs:
               });
 
               console.log(`Created issue #${issue.data.number} for ${member}: ${issue.data.html_url}`);
-
-              // Post the survey form as a comment so email stays clean
-              const formBody = [
-                `### 1. Team morale`,
-                `*Select ONE:*`,
-                `- [ ] 1 - Low`,
-                `- [ ] 2 - Below average`,
-                `- [ ] 3 - OK`,
-                `- [ ] 4 - Good`,
-                `- [ ] 5 - Great`,
-                ``,
-                `### 2. Blockers`,
-                `*Select all that apply:*`,
-                `- [ ] Technical debt / legacy issues`,
-                `- [ ] Waiting on another team`,
-                `- [ ] Unclear requirements`,
-                `- [ ] Infrastructure / environment issues`,
-                `- [ ] No blockers`,
-                ``,
-                `### 3. Weekly highlight and Concern (optional)`,
-                `Post a separate comment in this format:`,
-                ``,
-                `Highlight: one thing that went well`,
-                `Concern: anything the team should know`,
-                ``,
-                `*Once done, click Close issue below.*`
-              ].join("\n");
-
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.data.number,
-                body: formBody,
-              });
             }
