@@ -61,44 +61,10 @@ jobs:
 
             for (const member of assignees) {
               const title = customTitle
-                ? `[SURVEY] ${customTitle} - ${member} - ${week}`
-                : `[SURVEY] Team Pulse - ${week} (${date}) - ${member}`;
+                ? `[SURVEY] ${customTitle} - ${week}`
+                : `UWI Team Pulse - ${week} - ${member}`;
 
-              const body = [
-                `## UWI Weekly Team Pulse`,
-                `**Hi @${member}!**`,
-                `**Week:** ${week} - ${date}`,
-                ``,
-                `Please fill this out by **end of day Friday**. It takes ~2 minutes.`,
-                ``,
-                `Instructions: For rating questions, tick ONLY ONE checkbox. For blockers, tick all that apply. Then click **Close issue** at the bottom.`,
-                ``,
-                `### 1. Team morale`,
-                `*How is team morale this week? (select ONE)*`,
-                `- [ ] 1 - Low`,
-                `- [ ] 2 - Below average`,
-                `- [ ] 3 - OK`,
-                `- [ ] 4 - Good`,
-                `- [ ] 5 - Great`,
-                ``,
-                `### 2. Blockers`,
-                `*Are you facing any blockers? (select all that apply)*`,
-                `- [ ] Technical debt / legacy issues`,
-                `- [ ] Waiting on another team`,
-                `- [ ] Unclear requirements`,
-                `- [ ] Infrastructure / environment issues`,
-                `- [ ] No blockers`,
-                ``,
-                `### 3. Weekly highlight *(optional)*`,
-                `**Write your answer below this line:**`,
-                ``,
-                ``,
-                `### 4. Concern or suggestion *(optional)*`,
-                `**Write your answer below this line:**`,
-                ``,
-                ``,
-                `*Once done, click Close issue below. Your response will be auto-collected.*`
-              ].join("\n");
+              const body = `Hi @${member}, your UWI Team Pulse survey for ${week} is ready. Please open this issue on GitHub, fill in the checkboxes, and close it when done.`;
 
               const issue = await github.rest.issues.create({
                 owner: context.repo.owner,
@@ -110,4 +76,38 @@ jobs:
               });
 
               console.log(`Created issue #${issue.data.number} for ${member}: ${issue.data.html_url}`);
+
+              // Post the survey form as a comment so email stays clean
+              const formBody = [
+                `### 1. Team morale`,
+                `*Select ONE:*`,
+                `- [ ] 1 - Low`,
+                `- [ ] 2 - Below average`,
+                `- [ ] 3 - OK`,
+                `- [ ] 4 - Good`,
+                `- [ ] 5 - Great`,
+                ``,
+                `### 2. Blockers`,
+                `*Select all that apply:*`,
+                `- [ ] Technical debt / legacy issues`,
+                `- [ ] Waiting on another team`,
+                `- [ ] Unclear requirements`,
+                `- [ ] Infrastructure / environment issues`,
+                `- [ ] No blockers`,
+                ``,
+                `### 3. Weekly highlight and Concern (optional)`,
+                `Post a separate comment in this format:`,
+                ``,
+                `Highlight: one thing that went well`,
+                `Concern: anything the team should know`,
+                ``,
+                `*Once done, click Close issue below.*`
+              ].join("\n");
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.data.number,
+                body: formBody,
+              });
             }
