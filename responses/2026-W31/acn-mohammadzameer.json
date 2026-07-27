@@ -1,0 +1,19 @@
+{
+  "issue_number": 15,
+  "issue_title": "UWI Team Pulse - 2026-W31 - acn-mohammadzameer",
+  "respondent": "acn-mohammadzameer",
+  "submitted_at": "2026-07-27T09:32:04.547Z",
+  "week": "2026-W31",
+  "answers": {
+    "morale": 4,
+    "workload": 3,
+    "blockers": [
+      "Infrastructure / environment issues"
+    ],
+    "highlight": [
+      "Completed planned tasks",
+      "Good team collaboration"
+    ],
+    "concern": null
+  }
+}
