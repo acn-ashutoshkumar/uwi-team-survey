@@ -62,23 +62,23 @@ jobs:
 
             const title = customTitle
               ? customTitle
-              : `[SURVEY] Team Pulse — ${week} (${date})`;
+              : `[SURVEY] Team Pulse - ${week} (${date})`;
 
-            const body = `## 👋 UWI Weekly Team Pulse
-**Week:** ${week} — ${date}
+            const body = `## UWI Weekly Team Pulse
+**Week:** ${week} - ${date}
 Please fill this out by **end of day Friday**. It takes ~2 minutes.
 
-> ⚠️ **Instructions:** For rating questions, tick ONLY ONE checkbox. For blockers, tick all that apply.
+> Instructions: For rating questions, tick ONLY ONE checkbox. For blockers, tick all that apply.
 
 ---
 
 ### 1. Team morale
 *How is team morale this week? (select ONE)*
-- [ ] 1 — Low
-- [ ] 2 — Below average
-- [ ] 3 — OK
-- [ ] 4 — Good
-- [ ] 5 — Great
+- [ ] 1 - Low
+- [ ] 2 - Below average
+- [ ] 3 - OK
+- [ ] 4 - Good
+- [ ] 5 - Great
 
 ---
 
@@ -133,11 +133,11 @@ Please fill this out by **end of day Friday**. It takes ~2 minutes.
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              body: `👋 ${mentions}
+              body: `Hi ${mentions}
 
 The **${week} (${date})** team survey is now open!
 
-🔗 **Fill it out here:** ${issueUrl}
+Link: **Fill it out here:** ${issueUrl}
 
 Please complete by **end of day Friday** and close the issue when done.`
             });
