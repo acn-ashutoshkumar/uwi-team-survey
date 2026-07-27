@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UWI Team Survey</title>
+  <title>UWI Team Survey Dashboard</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -18,71 +18,34 @@
     }
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; }
 
-    /* NAV */
-    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; height: 52px; }
+    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; height: 52px; justify-content: space-between; }
     .nav-logo { font-weight: 700; font-size: 15px; color: var(--accent); letter-spacing: -0.02em; }
+    .logout-btn { padding: 6px 14px; background: none; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 13px; color: var(--text-muted); cursor: pointer; display: none; }
+    .logout-btn:hover { background: var(--bg); }
 
-    /* PAGES */
-    .page { display: none; padding: 36px 32px; max-width: 800px; margin: 0 auto; }
+    .page { display: none; }
     .page.active { display: block; }
-    @media (max-width: 640px) { .page { padding: 20px 16px; } nav { padding: 0 16px; } }
 
-    /* FORM */
-    .form-header { margin-bottom: 28px; }
-    .form-header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 6px; }
-    .form-header p { color: var(--text-muted); font-size: 14px; }
-    .week-badge { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 99px; margin-bottom: 12px; }
-
-    .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; box-shadow: var(--shadow); }
-    .form-card .section-label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-    .form-card .section-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
-
-    .name-select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; color: var(--text); background: var(--bg); appearance: none; cursor: pointer; transition: border-color 0.15s; }
-    .name-select:focus { outline: none; border-color: var(--accent); }
-
-    .rating-group { display: flex; gap: 8px; flex-wrap: wrap; }
-    .rating-btn { flex: 1; min-width: 60px; padding: 10px 8px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg); font-family: inherit; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; text-align: center; transition: all 0.15s; line-height: 1.3; }
-    .rating-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
-    .rating-btn.selected { border-color: var(--accent); background: var(--accent-light); color: var(--accent); font-weight: 600; }
-
-    .blocker-list { display: flex; flex-direction: column; gap: 8px; }
-    .blocker-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.15s; user-select: none; }
-    .blocker-item:hover, .blocker-item.selected { border-color: var(--accent); background: var(--accent-light); }
-    .blocker-check { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
-    .blocker-item.selected .blocker-check { background: var(--accent); border-color: var(--accent); }
-    .blocker-item.selected .blocker-check::after { content: ''; width: 10px; height: 6px; border-left: 2px solid white; border-bottom: 2px solid white; transform: rotate(-45deg) translateY(-1px); display: block; }
-    .blocker-label { font-size: 14px; }
-
-    .form-textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; color: var(--text); background: var(--bg); resize: vertical; min-height: 80px; transition: border-color 0.15s; }
-    .form-textarea:focus { outline: none; border-color: var(--accent); }
-    .form-textarea::placeholder { color: var(--text-muted); }
-
-    .submit-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; margin-top: 8px; }
-    .submit-btn:hover { background: var(--accent-hover); }
-    .submit-btn:disabled { background: var(--text-muted); cursor: not-allowed; }
-
-    .success-card { background: var(--teal-light); border: 1.5px solid var(--teal); border-radius: var(--radius); padding: 32px; text-align: center; display: none; }
-    .success-card.show { display: block; }
-    .success-card h2 { color: var(--teal); font-size: 20px; margin-bottom: 8px; }
-    .success-card p { color: var(--text-muted); font-size: 14px; }
-
-    .error-msg { background: var(--coral-light); border: 1.5px solid var(--coral); border-radius: 8px; padding: 12px 16px; font-size: 13px; color: var(--coral); margin-top: 12px; display: none; }
-    .error-msg.show { display: block; }
-
-    /* ADMIN LOGIN */
-    .login-wrap { max-width: 400px; margin: 80px auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px; box-shadow: var(--shadow); text-align: center; }
-    .login-wrap h2 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-    .login-wrap p { color: var(--text-muted); font-size: 13px; margin-bottom: 24px; }
-    .login-input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; margin-bottom: 12px; transition: border-color 0.15s; }
+    /* LOGIN */
+    .login-wrap { max-width: 400px; margin: 100px auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); text-align: center; }
+    .login-icon { font-size: 40px; margin-bottom: 16px; }
+    .login-wrap h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .login-wrap p { color: var(--text-muted); font-size: 13px; margin-bottom: 28px; }
+    .login-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; margin-bottom: 12px; transition: border-color 0.15s; }
     .login-input:focus { outline: none; border-color: var(--accent); }
     .login-btn { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
     .login-btn:hover { background: var(--accent-hover); }
-    .login-error { color: var(--coral); font-size: 13px; margin-top: 8px; display: none; }
+    .login-error { color: var(--coral); font-size: 13px; margin-top: 10px; display: none; }
     .login-error.show { display: block; }
 
     /* DASHBOARD */
-    .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .dash-wrap { padding: 32px; max-width: 1000px; margin: 0 auto; }
+    @media (max-width: 640px) { .dash-wrap { padding: 20px 16px; } nav { padding: 0 16px; } }
+
+    .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
     .dash-header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+    .dash-header p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
     .week-nav { display: flex; align-items: center; gap: 8px; }
     .week-nav button { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: inherit; transition: background 0.15s; }
     .week-nav button:hover { background: var(--bg); }
@@ -92,14 +55,14 @@
     .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
     .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
     .stat-card .s-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
-    .stat-card .s-value { font-size: 26px; font-weight: 700; line-height: 1; }
+    .stat-card .s-value { font-size: 28px; font-weight: 700; line-height: 1; }
     .stat-card .s-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
     .stat-card.c-accent { background: var(--accent-light); border-color: var(--accent); }
     .stat-card.c-accent .s-value { color: var(--accent); }
     .stat-card.c-teal { background: var(--teal-light); border-color: var(--teal); }
     .stat-card.c-teal .s-value { color: var(--teal); }
     .stat-card.c-coral { background: var(--coral-light); border-color: var(--coral); }
-    .stat-card.c-coral .s-value { color: var(--coral); font-size: 16px; padding-top: 4px; }
+    .stat-card.c-coral .s-value { color: var(--coral); font-size: 16px; padding-top: 6px; }
 
     .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
     @media (max-width: 640px) { .charts-grid { grid-template-columns: 1fr; } }
@@ -120,91 +83,20 @@
     .resp-table tr:hover td { background: var(--bg); }
     .pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
     .p1,.p2 { background: var(--teal-light); color: var(--teal); } .p3 { background: var(--amber-light); color: var(--amber); } .p4,.p5 { background: var(--coral-light); color: var(--coral); }
-    .empty-state { text-align: center; padding: 48px; color: var(--text-muted); font-size: 14px; }
-
-    .logout-btn { margin-left: auto; padding: 6px 14px; background: none; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 13px; color: var(--text-muted); cursor: pointer; }
-    .logout-btn:hover { background: var(--bg); }
+    .empty-state { text-align: center; padding: 60px; color: var(--text-muted); font-size: 14px; }
   </style>
 </head>
 <body>
 
 <nav>
-  <span class="nav-logo">UWI Surveys</span>
-  <button class="logout-btn" id="logout-btn" style="display:none" onclick="logout()">Logout</button>
+  <span class="nav-logo">UWI Team Survey</span>
+  <button class="logout-btn" id="logout-btn" onclick="logout()">Logout</button>
 </nav>
 
-<!-- FORM PAGE (default - for teammates) -->
-<div class="page active" id="page-form">
-  <div id="form-wrap">
-    <div class="form-header">
-      <div class="week-badge" id="form-week-badge">Loading...</div>
-      <h1>UWI Weekly Team Pulse</h1>
-      <p>Fill this out by end of day Friday. It takes ~2 minutes.</p>
-    </div>
-
-    <div class="form-card">
-      <label class="section-label">Your name</label>
-      <div class="section-hint">Select your GitHub username</div>
-      <select class="name-select" id="member-select">
-        <option value="">-- Select your name --</option>
-        <option value="acn-ashutoshkumar">acn-ashutoshkumar</option>
-        <option value="acn-shameethsuresh">acn-shameethsuresh</option>
-        <option value="Prasath-7">Prasath-7</option>
-        <option value="acn-mohammadzameer">acn-mohammadzameer</option>
-      </select>
-    </div>
-
-    <div class="form-card">
-      <label class="section-label">Team morale this week</label>
-      <div class="section-hint">Select ONE</div>
-      <div class="rating-group" id="morale-group">
-        <button class="rating-btn" data-val="1" onclick="selectRating('morale',1)">1<br><span style="font-size:11px;font-weight:400">Low</span></button>
-        <button class="rating-btn" data-val="2" onclick="selectRating('morale',2)">2<br><span style="font-size:11px;font-weight:400">Below avg</span></button>
-        <button class="rating-btn" data-val="3" onclick="selectRating('morale',3)">3<br><span style="font-size:11px;font-weight:400">OK</span></button>
-        <button class="rating-btn" data-val="4" onclick="selectRating('morale',4)">4<br><span style="font-size:11px;font-weight:400">Good</span></button>
-        <button class="rating-btn" data-val="5" onclick="selectRating('morale',5)">5<br><span style="font-size:11px;font-weight:400">Great</span></button>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <label class="section-label">Blockers</label>
-      <div class="section-hint">Select all that apply</div>
-      <div class="blocker-list" id="blockers-group">
-        <div class="blocker-item" onclick="toggleBlocker(this,'Technical debt / legacy issues')"><div class="blocker-check"></div><span class="blocker-label">Technical debt / legacy issues</span></div>
-        <div class="blocker-item" onclick="toggleBlocker(this,'Waiting on another team')"><div class="blocker-check"></div><span class="blocker-label">Waiting on another team</span></div>
-        <div class="blocker-item" onclick="toggleBlocker(this,'Unclear requirements')"><div class="blocker-check"></div><span class="blocker-label">Unclear requirements</span></div>
-        <div class="blocker-item" onclick="toggleBlocker(this,'Infrastructure / environment issues')"><div class="blocker-check"></div><span class="blocker-label">Infrastructure / environment issues</span></div>
-        <div class="blocker-item" onclick="toggleBlocker(this,'No blockers')"><div class="blocker-check"></div><span class="blocker-label">No blockers</span></div>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <label class="section-label">Weekly highlight <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
-      <div class="section-hint">One thing that went well this week</div>
-      <textarea class="form-textarea" id="highlight-input" placeholder="e.g. Completed R2.3 integration tests ahead of schedule"></textarea>
-    </div>
-
-    <div class="form-card">
-      <label class="section-label">Concern or suggestion <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
-      <div class="section-hint">Anything the team or leadership should know</div>
-      <textarea class="form-textarea" id="concern-input" placeholder="e.g. Staging environment has been flaky"></textarea>
-    </div>
-
-    <button class="submit-btn" id="submit-btn" onclick="submitSurvey()">Submit response</button>
-    <div class="error-msg" id="error-msg"></div>
-  </div>
-
-  <div class="success-card" id="success-card">
-    <div style="font-size:36px;margin-bottom:12px">&#10003;</div>
-    <h2>Response submitted!</h2>
-    <p>Thank you. Your response has been recorded successfully.</p>
-  </div>
-</div>
-
-<!-- ADMIN LOGIN PAGE -->
-<div class="page" id="page-login">
+<!-- LOGIN -->
+<div class="page active" id="page-login">
   <div class="login-wrap">
-    <div style="font-size:32px;margin-bottom:12px">🔒</div>
+    <div class="login-icon">📊</div>
     <h2>Admin Dashboard</h2>
     <p>Enter the admin password to view survey results</p>
     <input class="login-input" type="password" id="admin-password" placeholder="Enter password" onkeydown="if(event.key==='Enter') checkPassword()">
@@ -213,61 +105,43 @@
   </div>
 </div>
 
-<!-- ADMIN DASHBOARD PAGE -->
+<!-- DASHBOARD -->
 <div class="page" id="page-dashboard">
-  <div class="dash-header">
-    <h1>Admin Dashboard</h1>
-    <div class="week-nav">
-      <button id="prev-btn" onclick="changeWeek(-1)">Prev</button>
-      <span id="week-label">--</span>
-      <button id="next-btn" onclick="changeWeek(1)">Next</button>
+  <div class="dash-wrap">
+    <div class="dash-header">
+      <div>
+        <h1>Survey Results</h1>
+        <p>Accenture &amp; NTT Docomo Global — UWI Platform Team</p>
+      </div>
+      <div class="week-nav">
+        <button id="prev-btn" onclick="changeWeek(-1)">&#8592; Prev</button>
+        <span id="week-label">--</span>
+        <button id="next-btn" onclick="changeWeek(1)">Next &#8594;</button>
+      </div>
     </div>
+    <div id="dash-content"><div class="empty-state">Loading...</div></div>
   </div>
-  <div id="dash-content"><div class="empty-state">Loading...</div></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-// ── CONFIG ──────────────────────────────────────────────
 const GITHUB_OWNER = "acn-ashutoshkumar";
 const GITHUB_REPO  = "uwi-team-survey";
-
-// Change this password to something only you know!
 const ADMIN_PASSWORD = "uwi-admin-2026";
-// ────────────────────────────────────────────────────────
+const TEAM_SIZE = 4;
 
-// Add secret admin URL: go to /index.html#admin to see login
-window.addEventListener('load', () => {
-  const week = getISOWeek();
-  document.getElementById('form-week-badge').textContent = week;
-
-  // If URL has #admin, show login page
-  if (window.location.hash === '#admin') {
-    if (sessionStorage.getItem('uwi-admin-auth') === 'true') {
-      showDashboard();
-    } else {
-      showPage('login');
-    }
-  }
-});
-
-window.addEventListener('hashchange', () => {
-  if (window.location.hash === '#admin') {
-    if (sessionStorage.getItem('uwi-admin-auth') === 'true') {
-      showDashboard();
-    } else {
-      showPage('login');
-    }
-  } else {
-    showPage('form');
-    document.getElementById('logout-btn').style.display = 'none';
-  }
-});
-
-function showPage(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
+function getISOWeek(date = new Date()) {
+  const d = new Date(date);
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+  const y = new Date(d.getFullYear(), 0, 1);
+  const w = Math.ceil(((d - y) / 86400000 + 1) / 7);
+  return `${d.getFullYear()}-W${String(w).padStart(2,'0')}`;
 }
+
+window.addEventListener('load', () => {
+  if (sessionStorage.getItem('uwi-admin-auth') === 'true') showDashboard();
+});
 
 function checkPassword() {
   const pwd = document.getElementById('admin-password').value;
@@ -281,147 +155,20 @@ function checkPassword() {
 }
 
 function showDashboard() {
-  showPage('dashboard');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-dashboard').classList.add('active');
   document.getElementById('logout-btn').style.display = 'block';
   loadDashboard();
 }
 
 function logout() {
   sessionStorage.removeItem('uwi-admin-auth');
-  window.location.hash = '';
-  showPage('form');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-login').classList.add('active');
   document.getElementById('logout-btn').style.display = 'none';
+  document.getElementById('admin-password').value = '';
 }
 
-// ── FORM ────────────────────────────────────────────────
-let formState = { morale: null, blockers: [] };
-
-function getISOWeek(date = new Date()) {
-  const d = new Date(date);
-  d.setHours(0,0,0,0);
-  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-  const y = new Date(d.getFullYear(), 0, 1);
-  const w = Math.ceil(((d - y) / 86400000 + 1) / 7);
-  return `${d.getFullYear()}-W${String(w).padStart(2,'0')}`;
-}
-
-function selectRating(group, val) {
-  formState[group] = val;
-  document.querySelectorAll(`#${group}-group .rating-btn`).forEach(btn => {
-    btn.classList.toggle('selected', parseInt(btn.dataset.val) === val);
-  });
-}
-
-function toggleBlocker(el, val) {
-  el.classList.toggle('selected');
-  if (el.classList.contains('selected')) {
-    if (val === 'No blockers') {
-      document.querySelectorAll('#blockers-group .blocker-item').forEach(b => { if (b !== el) b.classList.remove('selected'); });
-      formState.blockers = ['No blockers'];
-    } else {
-      document.querySelectorAll('#blockers-group .blocker-item').forEach(b => { if (b.querySelector('.blocker-label').textContent === 'No blockers') b.classList.remove('selected'); });
-      formState.blockers = formState.blockers.filter(b => b !== 'No blockers');
-      if (!formState.blockers.includes(val)) formState.blockers.push(val);
-    }
-  } else {
-    formState.blockers = formState.blockers.filter(b => b !== val);
-  }
-}
-
-async function submitSurvey() {
-  const member = document.getElementById('member-select').value;
-  const highlight = document.getElementById('highlight-input').value.trim();
-  const concern = document.getElementById('concern-input').value.trim();
-  const errorEl = document.getElementById('error-msg');
-
-  if (!member) { showError('Please select your name.'); return; }
-  if (!formState.morale) { showError('Please rate team morale.'); return; }
-  if (formState.blockers.length === 0) { showError('Please select at least one blocker option.'); return; }
-
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
-  errorEl.classList.remove('show');
-
-  const week = getISOWeek();
-  const commentBody = [
-    `SURVEY_RESPONSE`,
-    `Respondent: ${member}`,
-    `Week: ${week}`,
-    `Morale: ${formState.morale}`,
-    `Blockers: ${formState.blockers.join(', ')}`,
-    `Highlight: ${highlight || 'None'}`,
-    `Concern: ${concern || 'None'}`,
-  ].join('\n');
-
-  try {
-    // Find open survey issue assigned to this member
-    const issuesRes = await fetch(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues?labels=team-survey&state=open&per_page=20`
-    );
-    const issues = await issuesRes.json();
-
-    // Find issue assigned to this member
-    const myIssue = issues.find(i =>
-      i.assignees?.some(a => a.login === member) ||
-      i.title.includes(member)
-    );
-
-    if (!myIssue) {
-      showError('No open survey found for you. Please ask your admin to trigger the survey.');
-      btn.disabled = false;
-      btn.textContent = 'Submit response';
-      return;
-    }
-
-    // Post comment with survey response
-    const commentRes = await fetch(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${myIssue.number}/comments`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: commentBody })
-      }
-    );
-
-    if (commentRes.status === 401 || commentRes.status === 403) {
-      // Repo is private — show manual fallback
-      showManualFallback(commentBody, myIssue.number);
-      btn.disabled = false;
-      btn.textContent = 'Submit response';
-      return;
-    }
-
-    if (!commentRes.ok) throw new Error('Failed to submit');
-
-    // Success
-    document.getElementById('form-wrap').style.display = 'none';
-    document.getElementById('success-card').classList.add('show');
-
-  } catch (err) {
-    showError('Something went wrong. Please try again.');
-    btn.disabled = false;
-    btn.textContent = 'Submit response';
-  }
-}
-
-function showError(msg) {
-  const el = document.getElementById('error-msg');
-  el.textContent = msg;
-  el.classList.add('show');
-}
-
-function showManualFallback(commentBody, issueNumber) {
-  const issueUrl = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${issueNumber}`;
-  document.getElementById('form-wrap').insertAdjacentHTML('beforeend', `
-    <div class="form-card" style="margin-top:16px;border-color:var(--amber)">
-      <label class="section-label" style="color:var(--amber)">One more step</label>
-      <div class="section-hint" style="margin-bottom:12px">Please post this as a comment on your GitHub issue: <a href="${issueUrl}" target="_blank" style="color:var(--accent)">Open Issue</a></div>
-      <textarea class="form-textarea" style="font-family:monospace;font-size:12px;min-height:160px" readonly>${commentBody}</textarea>
-    </div>`);
-}
-
-// ── DASHBOARD ────────────────────────────────────────────
 let allWeeks = [], currentWeekIndex = 0;
 
 async function loadDashboard() {
@@ -452,6 +199,7 @@ async function renderWeek(week) {
   document.getElementById('week-label').textContent = week;
   document.getElementById('prev-btn').disabled = currentWeekIndex >= allWeeks.length - 1;
   document.getElementById('next-btn').disabled = currentWeekIndex === 0;
+  document.getElementById('dash-content').innerHTML = '<div class="empty-state">Loading...</div>';
   const responses = await loadWeekResponses(week);
   renderDashboard(responses, week);
 }
@@ -464,48 +212,51 @@ function renderDemo() {
     { respondent: 'acn-ashutoshkumar', submitted_at: new Date().toISOString(), answers: { morale: 4, blockers: ['No blockers'], highlight: 'Completed R2.3 tests', concern: null }},
     { respondent: 'acn-shameethsuresh', submitted_at: new Date().toISOString(), answers: { morale: 3, blockers: ['Waiting on another team'], highlight: null, concern: 'Staging env flaky' }},
     { respondent: 'Prasath-7', submitted_at: new Date().toISOString(), answers: { morale: 5, blockers: ['No blockers'], highlight: 'Great retro!', concern: null }},
+    { respondent: 'acn-mohammadzameer', submitted_at: new Date().toISOString(), answers: { morale: 4, blockers: ['Unclear requirements'], highlight: null, concern: null }},
   ], getISOWeek() + ' (demo)');
 }
 
 function renderDashboard(responses, week) {
   const total = responses.length;
   const morales = responses.map(r => r.answers?.morale).filter(Boolean);
-  const avg = arr => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1) : '--';
+  const avg = arr => arr.length ? (arr.reduce((a,b) => a+b, 0) / arr.length).toFixed(1) : '--';
   const blockerCounts = {};
-  responses.forEach(r => (r.answers?.blockers||[]).forEach(b => { blockerCounts[b]=(blockerCounts[b]||0)+1; }));
-  const sortedBlockers = Object.entries(blockerCounts).sort((a,b)=>b[1]-a[1]);
+  responses.forEach(r => (r.answers?.blockers || []).forEach(b => { blockerCounts[b] = (blockerCounts[b] || 0) + 1; }));
+  const sortedBlockers = Object.entries(blockerCounts).sort((a,b) => b[1] - a[1]);
   const maxB = sortedBlockers[0]?.[1] || 1;
-  const teamSize = 4;
 
   document.getElementById('dash-content').innerHTML = `
     <div class="stats-row">
-      <div class="stat-card c-accent"><div class="s-label">Responses</div><div class="s-value">${total}</div><div class="s-sub">${Math.round((total/teamSize)*100)}% response rate</div></div>
+      <div class="stat-card c-accent"><div class="s-label">Responses</div><div class="s-value">${total}</div><div class="s-sub">${Math.round((total/TEAM_SIZE)*100)}% response rate</div></div>
       <div class="stat-card c-teal"><div class="s-label">Avg morale</div><div class="s-value">${avg(morales)}<span style="font-size:13px;font-weight:400"> /5</span></div><div class="s-sub">${morales.length} rated</div></div>
-      <div class="stat-card c-coral"><div class="s-label">Top blocker</div><div class="s-value" style="font-size:15px;padding-top:4px">${sortedBlockers[0]?.[0]?.split(' ')[0]||'--'}</div><div class="s-sub">${sortedBlockers[0]?sortedBlockers[0][1]+' affected':'none'}</div></div>
+      <div class="stat-card c-coral"><div class="s-label">Top blocker</div><div class="s-value">${sortedBlockers[0]?.[0]?.split(' ')[0] || '--'}</div><div class="s-sub">${sortedBlockers[0] ? sortedBlockers[0][1] + ' affected' : 'none reported'}</div></div>
     </div>
     <div class="charts-grid">
       <div class="chart-card"><h3>Morale distribution</h3><canvas id="morale-chart"></canvas></div>
       <div class="chart-card"><h3>Blockers reported</h3>
-        ${sortedBlockers.length===0 ? '<p style="color:var(--text-muted);font-size:13px">No blockers this week!</p>'
-          : `<ul class="blocker-bar-list">${sortedBlockers.map(([n,c])=>`<li><span class="b-name">${n}</span><span class="b-wrap"><span class="b-fill" style="width:${Math.round((c/maxB)*100)}%"></span></span><span class="b-count">${c}</span></li>`).join('')}</ul>`}
+        ${sortedBlockers.length === 0
+          ? '<p style="color:var(--text-muted);font-size:13px;padding-top:8px">No blockers this week!</p>'
+          : `<ul class="blocker-bar-list">${sortedBlockers.map(([n,c]) => `<li><span class="b-name">${n}</span><span class="b-wrap"><span class="b-fill" style="width:${Math.round((c/maxB)*100)}%"></span></span><span class="b-count">${c}</span></li>`).join('')}</ul>`}
       </div>
       <div class="chart-card wide"><h3>Individual responses &mdash; ${week}</h3>
-        ${total===0 ? '<p style="color:var(--text-muted);font-size:13px">No responses yet.</p>'
+        ${total === 0
+          ? '<p style="color:var(--text-muted);font-size:13px">No responses yet.</p>'
           : `<table class="resp-table"><thead><tr><th>Teammate</th><th>Morale</th><th>Blockers</th><th>Highlight</th><th>Concern</th></tr></thead><tbody>
-          ${responses.map(r=>`<tr>
-            <td><strong>${r.respondent}</strong><br><span style="color:var(--text-muted);font-size:11px">${new Date(r.submitted_at).toLocaleDateString()}</span></td>
-            <td>${r.answers?.morale?`<span class="pill p${r.answers.morale}">${r.answers.morale}/5</span>`:'--'}</td>
-            <td style="font-size:12px">${(r.answers?.blockers||[]).join(', ')||'--'}</td>
-            <td style="font-size:12px;color:var(--text-muted)">${r.answers?.highlight||'--'}</td>
-            <td style="font-size:12px;color:var(--text-muted)">${r.answers?.concern||'--'}</td>
-          </tr>`).join('')}</tbody></table>`}
+            ${responses.map(r => `<tr>
+              <td><strong>${r.respondent}</strong><br><span style="color:var(--text-muted);font-size:11px">${new Date(r.submitted_at).toLocaleDateString()}</span></td>
+              <td>${r.answers?.morale ? `<span class="pill p${r.answers.morale}">${r.answers.morale}/5</span>` : '--'}</td>
+              <td style="font-size:12px">${(r.answers?.blockers || []).join(', ') || '--'}</td>
+              <td style="font-size:12px;color:var(--text-muted)">${r.answers?.highlight || '--'}</td>
+              <td style="font-size:12px;color:var(--text-muted)">${r.answers?.concern || '--'}</td>
+            </tr>`).join('')}
+            </tbody></table>`}
       </div>
     </div>`;
 
-  const mCounts = [1,2,3,4,5].map(i => morales.filter(m=>m===i).length);
+  const mCounts = [1,2,3,4,5].map(i => morales.filter(m => m === i).length);
   new Chart(document.getElementById('morale-chart'), {
     type: 'bar',
-    data: { labels: ['1','2','3','4','5'], datasets: [{ data: mCounts, backgroundColor: ['#F7C1C1','#F09595','#FAC775','#9FE1CB','#5DCAA5'], borderRadius: 6, borderSkipped: false }] },
+    data: { labels: ['1 Low','2','3 OK','4','5 Great'], datasets: [{ data: mCounts, backgroundColor: ['#F7C1C1','#F09595','#FAC775','#9FE1CB','#5DCAA5'], borderRadius: 6, borderSkipped: false }] },
     options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { ticks: { stepSize: 1, precision: 0 }, beginAtZero: true } } }
   });
 }
