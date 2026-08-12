@@ -14,6 +14,7 @@
       --teal: #0F6E56; --teal-light: #E1F5EE;
       --amber: #BA7517; --amber-light: #FAEEDA;
       --coral: #993C1D; --coral-light: #FAECE7;
+      --purple: #6D28D9; --purple-light: #F5F3FF;
       --radius: 14px; --shadow: 0 2px 12px rgba(0,0,0,0.07);
     }
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; }
@@ -39,50 +40,72 @@
     .login-error.show { display: block; }
 
     /* DASHBOARD */
-    .dash-wrap { padding: 32px; max-width: 1000px; margin: 0 auto; }
+    .dash-wrap { padding: 28px 32px; max-width: 1100px; margin: 0 auto; }
     @media (max-width: 640px) { .dash-wrap { padding: 20px 16px; } nav { padding: 0 16px; } }
 
-    .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
     .dash-header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
     .dash-header p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
-    .week-nav { display: flex; align-items: center; gap: 8px; }
-    .week-nav button { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: inherit; transition: background 0.15s; }
-    .week-nav button:hover { background: var(--bg); }
-    .week-nav button:disabled { opacity: 0.4; cursor: default; }
-    #week-label { font-weight: 600; font-size: 14px; min-width: 110px; text-align: center; }
+    .month-nav { display: flex; align-items: center; gap: 8px; }
+    .month-nav button { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: inherit; transition: background 0.15s; }
+    .month-nav button:hover { background: var(--bg); }
+    .month-nav button:disabled { opacity: 0.4; cursor: default; }
+    #month-label { font-weight: 600; font-size: 14px; min-width: 110px; text-align: center; }
 
-    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
-    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
-    .stat-card .s-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
-    .stat-card .s-value { font-size: 28px; font-weight: 700; line-height: 1; }
-    .stat-card .s-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    /* Section header */
+    .section-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); padding: 8px 0 12px; border-bottom: 2px solid var(--border); margin: 24px 0 16px; display: flex; align-items: center; gap: 8px; }
+    .section-header span { background: var(--accent); color: white; padding: 2px 8px; border-radius: 99px; font-size: 10px; }
+
+    /* Stat cards */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+    .stat-card .s-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
+    .stat-card .s-value { font-size: 26px; font-weight: 700; line-height: 1; }
+    .stat-card .s-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
     .stat-card.c-accent { background: var(--accent-light); border-color: var(--accent); }
     .stat-card.c-accent .s-value { color: var(--accent); }
     .stat-card.c-teal { background: var(--teal-light); border-color: var(--teal); }
     .stat-card.c-teal .s-value { color: var(--teal); }
+    .stat-card.c-amber { background: var(--amber-light); border-color: var(--amber); }
+    .stat-card.c-amber .s-value { color: var(--amber); }
     .stat-card.c-coral { background: var(--coral-light); border-color: var(--coral); }
-    .stat-card.c-coral .s-value { color: var(--coral); font-size: 16px; padding-top: 6px; }
+    .stat-card.c-coral .s-value { color: var(--coral); }
+    .stat-card.c-purple { background: var(--purple-light); border-color: var(--purple); }
+    .stat-card.c-purple .s-value { color: var(--purple); }
 
+    /* Charts */
     .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-    @media (max-width: 640px) { .charts-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 700px) { .charts-grid { grid-template-columns: 1fr; } }
     .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
     .chart-card.wide { grid-column: span 2; }
-    @media (max-width: 640px) { .chart-card.wide { grid-column: span 1; } }
+    @media (max-width: 700px) { .chart-card.wide { grid-column: span 1; } }
     .chart-card h3 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 16px; }
-    canvas { max-height: 200px; }
+    canvas { max-height: 180px; }
 
-    .blocker-bar-list { list-style: none; }
-    .blocker-bar-list li { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-    .blocker-bar-list li:last-child { border: none; }
-    .b-name { min-width: 180px; } .b-wrap { flex: 1; background: var(--bg); border-radius: 4px; height: 8px; } .b-fill { height: 8px; border-radius: 4px; background: var(--coral); transition: width 0.5s; } .b-count { font-weight: 600; color: var(--text-muted); font-size: 12px; min-width: 20px; text-align: right; }
+    /* GenAI tools bar list */
+    .bar-list { list-style: none; }
+    .bar-list li { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+    .bar-list li:last-child { border: none; }
+    .b-name { min-width: 140px; color: var(--text); }
+    .b-wrap { flex: 1; background: var(--bg); border-radius: 4px; height: 8px; }
+    .b-fill { height: 8px; border-radius: 4px; background: var(--accent); transition: width 0.5s; }
+    .b-count { font-weight: 600; color: var(--text-muted); font-size: 11px; min-width: 20px; text-align: right; }
 
-    .resp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .resp-table th { text-align: left; padding: 8px 12px; border-bottom: 2px solid var(--border); color: var(--text-muted); font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 0.04em; }
-    .resp-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    /* Response table */
+    .resp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .resp-table th { text-align: left; padding: 8px 10px; border-bottom: 2px solid var(--border); color: var(--text-muted); font-weight: 500; text-transform: uppercase; font-size: 10px; letter-spacing: 0.04em; white-space: nowrap; }
+    .resp-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     .resp-table tr:hover td { background: var(--bg); }
-    .pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
-    .p1,.p2 { background: var(--teal-light); color: var(--teal); } .p3 { background: var(--amber-light); color: var(--amber); } .p4,.p5 { background: var(--coral-light); color: var(--coral); }
+    .pill { display: inline-block; padding: 2px 7px; border-radius: 99px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+    .p1 { background: #FECACA; color: #991B1B; }
+    .p2 { background: #FED7AA; color: #92400E; }
+    .p3 { background: #FEF3C7; color: #92400E; }
+    .p4 { background: #D1FAE5; color: #065F46; }
+    .p5 { background: #A7F3D0; color: #065F46; }
+
+    .tag { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 4px; margin: 1px; }
+
     .empty-state { text-align: center; padding: 60px; color: var(--text-muted); font-size: 14px; }
   </style>
 </head>
@@ -113,10 +136,10 @@
         <h1>Survey Results</h1>
         <p>Accenture &amp; NTT Docomo Global — UWI Platform Team</p>
       </div>
-      <div class="week-nav">
-        <button id="prev-btn" onclick="changeWeek(-1)">&#8592; Prev</button>
-        <span id="week-label">--</span>
-        <button id="next-btn" onclick="changeWeek(1)">Next &#8594;</button>
+      <div class="month-nav">
+        <button id="prev-btn" onclick="changeMonth(-1)">&#8592; Prev</button>
+        <span id="month-label">--</span>
+        <button id="next-btn" onclick="changeMonth(1)">Next &#8594;</button>
       </div>
     </div>
     <div id="dash-content"><div class="empty-state">Loading...</div></div>
@@ -125,18 +148,17 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-const GITHUB_OWNER = "acn-ashutoshkumar";
-const GITHUB_REPO  = "uwi-team-survey";
+const GITHUB_OWNER   = "acn-ashutoshkumar";
+const GITHUB_REPO    = "uwi-team-survey";
 const ADMIN_PASSWORD = "uwi-admin-2026";
-const TEAM_SIZE = 4;
+const TEAM_SIZE      = 4;
 
-function getISOWeek(date = new Date()) {
-  const d = new Date(date);
-  d.setHours(0,0,0,0);
-  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-  const y = new Date(d.getFullYear(), 0, 1);
-  const w = Math.ceil(((d - y) / 86400000 + 1) / 7);
-  return `${d.getFullYear()}-W${String(w).padStart(2,'0')}`;
+const COLORS = ['#E9D5FF','#C4B5FD','#A78BFA','#7C3AED','#5B21B6'];
+const GREEN  = '#10B981'; const RED = '#EF4444'; const AMBER = '#F59E0B';
+
+function getCurrentMonth() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 
 window.addEventListener('load', () => {
@@ -144,8 +166,7 @@ window.addEventListener('load', () => {
 });
 
 function checkPassword() {
-  const pwd = document.getElementById('admin-password').value;
-  if (pwd === ADMIN_PASSWORD) {
+  if (document.getElementById('admin-password').value === ADMIN_PASSWORD) {
     sessionStorage.setItem('uwi-admin-auth', 'true');
     showDashboard();
   } else {
@@ -169,97 +190,206 @@ function logout() {
   document.getElementById('admin-password').value = '';
 }
 
-let allWeeks = [], currentWeekIndex = 0;
+let allMonths = [], currentIdx = 0;
 
 async function loadDashboard() {
   try {
     const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/responses`);
     if (!res.ok) throw new Error('no-data');
     const dirs = await res.json();
-    allWeeks = dirs.filter(d => d.type === 'dir').map(d => d.name).sort().reverse();
-    if (!allWeeks.length) throw new Error('no-data');
-    currentWeekIndex = 0;
-    renderWeek(allWeeks[0]);
+    allMonths = dirs.filter(d => d.type === 'dir').map(d => d.name).sort().reverse();
+    if (!allMonths.length) throw new Error('no-data');
+    currentIdx = 0;
+    renderMonth(allMonths[0]);
   } catch { renderDemo(); }
 }
 
-async function loadWeekResponses(week) {
-  const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/responses/${week}`);
+async function loadMonthResponses(month) {
+  const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/responses/${month}`);
   if (!res.ok) return [];
   const files = await res.json();
   return Promise.all(files.filter(f => f.name.endsWith('.json')).map(async f => { const r = await fetch(f.download_url); return r.json(); }));
 }
 
-function changeWeek(d) {
-  currentWeekIndex = Math.max(0, Math.min(allWeeks.length - 1, currentWeekIndex + d));
-  renderWeek(allWeeks[currentWeekIndex]);
+function changeMonth(d) {
+  currentIdx = Math.max(0, Math.min(allMonths.length - 1, currentIdx + d));
+  renderMonth(allMonths[currentIdx]);
 }
 
-async function renderWeek(week) {
-  document.getElementById('week-label').textContent = week;
-  document.getElementById('prev-btn').disabled = currentWeekIndex >= allWeeks.length - 1;
-  document.getElementById('next-btn').disabled = currentWeekIndex === 0;
-  document.getElementById('dash-content').innerHTML = '<div class="empty-state">Loading...</div>';
-  const responses = await loadWeekResponses(week);
-  renderDashboard(responses, week);
+async function renderMonth(month) {
+  document.getElementById('month-label').textContent = month;
+  document.getElementById('prev-btn').disabled = currentIdx >= allMonths.length - 1;
+  document.getElementById('next-btn').disabled = currentIdx === 0;
+  document.getElementById('dash-content').innerHTML = '<div class="empty-state">Loading responses...</div>';
+  const responses = await loadMonthResponses(month);
+  renderDashboard(responses, month);
+}
+
+function avg(arr) { return arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1) : '--'; }
+function pill(v) { return v ? `<span class="pill p${v}">${v}/5</span>` : '--'; }
+function ratingArr(key, responses) { return responses.map(r => r.answers?.[key]).filter(Boolean); }
+function barChart(id, data) {
+  new Chart(document.getElementById(id), {
+    type: 'bar',
+    data: { labels:['1','2','3','4','5'], datasets:[{ data, backgroundColor:COLORS, borderRadius:5, borderSkipped:false }] },
+    options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{ticks:{stepSize:1,precision:0},beginAtZero:true,grid:{color:'#F0EDE8'}} } }
+  });
+}
+
+function renderDashboard(responses, month) {
+  const total = responses.length;
+  const rr    = Math.round((total/TEAM_SIZE)*100);
+
+  // Averages per section
+  const s1 = [
+    avg(ratingArr('q1_sprint_delivery', responses)),
+    avg(ratingArr('q2_collaboration',   responses)),
+    avg(ratingArr('q3_tech_debt',       responses)),
+  ];
+  const s2 = [
+    avg(ratingArr('q4_roadmap_visibility', responses)),
+    avg(ratingArr('q5_requirements',       responses)),
+  ];
+  const s3 = [
+    avg(ratingArr('q7_genai_productivity', responses)),
+    avg(ratingArr('q8_genai_confidence',   responses)),
+  ];
+  const s4 = [avg(ratingArr('q9_client_feedback', responses))];
+  const s5 = [avg(ratingArr('q10_overall',         responses))];
+
+  // GenAI tools count
+  const toolCounts = {};
+  responses.forEach(r => (r.answers?.q6_genai_tools||[]).forEach(t => { toolCounts[t]=(toolCounts[t]||0)+1; }));
+  const sortedTools = Object.entries(toolCounts).sort((a,b)=>b[1]-a[1]);
+  const maxTool = sortedTools[0]?.[1]||1;
+
+  document.getElementById('dash-content').innerHTML = `
+
+    <!-- Overview stats -->
+    <div class="stats-row">
+      <div class="stat-card c-accent"><div class="s-label">Responses</div><div class="s-value">${total}</div><div class="s-sub">${rr}% response rate</div></div>
+      <div class="stat-card c-teal"><div class="s-label">Process avg</div><div class="s-value">${avg([...ratingArr('q1_sprint_delivery',responses),...ratingArr('q2_collaboration',responses),...ratingArr('q3_tech_debt',responses)])}<span style="font-size:12px;font-weight:400">/5</span></div><div class="s-sub">Section 1</div></div>
+      <div class="stat-card c-amber"><div class="s-label">Roadmap avg</div><div class="s-value">${avg([...ratingArr('q4_roadmap_visibility',responses),...ratingArr('q5_requirements',responses)])}<span style="font-size:12px;font-weight:400">/5</span></div><div class="s-sub">Section 2</div></div>
+      <div class="stat-card c-purple"><div class="s-label">GenAI avg</div><div class="s-value">${avg([...ratingArr('q7_genai_productivity',responses),...ratingArr('q8_genai_confidence',responses)])}<span style="font-size:12px;font-weight:400">/5</span></div><div class="s-sub">Section 3</div></div>
+      <div class="stat-card c-coral"><div class="s-label">Overall avg</div><div class="s-value">${s5[0]}<span style="font-size:12px;font-weight:400">/5</span></div><div class="s-sub">Section 5</div></div>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="section-header"><span>S1</span> Process &amp; Ways of Working</div>
+    <div class="charts-grid">
+      <div class="chart-card"><h3>Q1 — Sprint &amp; Delivery Process</h3><canvas id="c-q1"></canvas></div>
+      <div class="chart-card"><h3>Q2 — Collaboration &amp; Cross-Team</h3><canvas id="c-q2"></canvas></div>
+      <div class="chart-card"><h3>Q3 — Technical Debt &amp; Code Quality</h3><canvas id="c-q3"></canvas></div>
+      <div class="stat-card" style="display:flex;flex-direction:column;justify-content:center;gap:12px;">
+        <div><div class="s-label">Q1 Sprint avg</div><div class="s-value" style="font-size:22px">${s1[0]}<span style="font-size:12px;font-weight:400">/5</span></div></div>
+        <div><div class="s-label">Q2 Collab avg</div><div class="s-value" style="font-size:22px">${s1[1]}<span style="font-size:12px;font-weight:400">/5</span></div></div>
+        <div><div class="s-label">Q3 Tech debt avg</div><div class="s-value" style="font-size:22px">${s1[2]}<span style="font-size:12px;font-weight:400">/5</span></div></div>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="section-header"><span>S2</span> Roadmap Clarity &amp; Product Direction</div>
+    <div class="charts-grid">
+      <div class="chart-card"><h3>Q4 — Roadmap Visibility</h3><canvas id="c-q4"></canvas></div>
+      <div class="chart-card"><h3>Q5 — Requirements Quality</h3><canvas id="c-q5"></canvas></div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="section-header"><span>S3</span> GenAI Adoption &amp; Tooling</div>
+    <div class="charts-grid">
+      <div class="chart-card"><h3>Q6 — GenAI Tools in Use</h3>
+        ${sortedTools.length === 0
+          ? '<p style="color:var(--text-muted);font-size:13px">No data yet</p>'
+          : `<ul class="bar-list">${sortedTools.map(([n,c])=>`<li><span class="b-name">${n}</span><span class="b-wrap"><span class="b-fill" style="width:${Math.round((c/maxTool)*100)}%;background:var(--accent)"></span></span><span class="b-count">${c}</span></li>`).join('')}</ul>`}
+      </div>
+      <div class="chart-card"><h3>Q7 — GenAI Impact on Productivity</h3><canvas id="c-q7"></canvas></div>
+      <div class="chart-card wide"><h3>Q8 — GenAI Confidence &amp; Trust</h3><canvas id="c-q8"></canvas></div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="section-header"><span>S4</span> Client Satisfaction &amp; Stakeholder Alignment</div>
+    <div class="charts-grid">
+      <div class="chart-card"><h3>Q9 — Client Feedback Loop</h3><canvas id="c-q9"></canvas></div>
+      <div class="stat-card c-teal" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="s-label">Q9 avg</div>
+        <div class="s-value">${s4[0]}<span style="font-size:12px;font-weight:400">/5</span></div>
+        <div class="s-sub">Client feedback loop</div>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="section-header"><span>S5</span> Overall Satisfaction</div>
+    <div class="charts-grid">
+      <div class="chart-card"><h3>Q10 — Overall Satisfaction</h3><canvas id="c-q10"></canvas></div>
+      <div class="stat-card c-accent" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="s-label">Overall avg</div>
+        <div class="s-value">${s5[0]}<span style="font-size:12px;font-weight:400">/5</span></div>
+        <div class="s-sub">Developer satisfaction</div>
+      </div>
+    </div>
+
+    <!-- Individual responses -->
+    <div class="section-header"><span>All</span> Individual Responses — ${month}</div>
+    <div class="chart-card wide" style="margin-bottom:20px;overflow-x:auto">
+      ${total === 0
+        ? '<p style="color:var(--text-muted);font-size:13px">No responses yet.</p>'
+        : `<table class="resp-table">
+          <thead><tr>
+            <th>Teammate</th>
+            <th>Q1 Sprint</th><th>Q2 Collab</th><th>Q3 Tech</th>
+            <th>Q4 Roadmap</th><th>Q5 Req</th>
+            <th>Q6 GenAI Tools</th>
+            <th>Q7 AI Prod</th><th>Q8 AI Trust</th>
+            <th>Q9 Client</th><th>Q10 Overall</th>
+          </tr></thead>
+          <tbody>
+          ${responses.map(r=>`<tr>
+            <td><strong>${r.respondent}</strong><br><span style="color:var(--text-muted);font-size:10px">${new Date(r.submitted_at).toLocaleDateString()}</span></td>
+            <td>${pill(r.answers?.q1_sprint_delivery)}</td>
+            <td>${pill(r.answers?.q2_collaboration)}</td>
+            <td>${pill(r.answers?.q3_tech_debt)}</td>
+            <td>${pill(r.answers?.q4_roadmap_visibility)}</td>
+            <td>${pill(r.answers?.q5_requirements)}</td>
+            <td style="max-width:160px">${(r.answers?.q6_genai_tools||[]).map(t=>`<span class="tag">${t}</span>`).join('')||'--'}</td>
+            <td>${pill(r.answers?.q7_genai_productivity)}</td>
+            <td>${pill(r.answers?.q8_genai_confidence)}</td>
+            <td>${pill(r.answers?.q9_client_feedback)}</td>
+            <td>${pill(r.answers?.q10_overall)}</td>
+          </tr>`).join('')}
+          </tbody>
+        </table>`}
+    </div>`;
+
+  // Draw all bar charts
+  const charts = {
+    'c-q1':  ratingArr('q1_sprint_delivery',   responses),
+    'c-q2':  ratingArr('q2_collaboration',      responses),
+    'c-q3':  ratingArr('q3_tech_debt',          responses),
+    'c-q4':  ratingArr('q4_roadmap_visibility', responses),
+    'c-q5':  ratingArr('q5_requirements',       responses),
+    'c-q7':  ratingArr('q7_genai_productivity', responses),
+    'c-q8':  ratingArr('q8_genai_confidence',   responses),
+    'c-q9':  ratingArr('q9_client_feedback',    responses),
+    'c-q10': ratingArr('q10_overall',           responses),
+  };
+
+  Object.entries(charts).forEach(([id, arr]) => {
+    const counts = [1,2,3,4,5].map(i => arr.filter(v=>v===i).length);
+    barChart(id, counts);
+  });
 }
 
 function renderDemo() {
-  document.getElementById('week-label').textContent = getISOWeek() + ' (demo)';
+  const month = getCurrentMonth() + ' (demo)';
+  document.getElementById('month-label').textContent = month;
   document.getElementById('prev-btn').disabled = true;
   document.getElementById('next-btn').disabled = true;
   renderDashboard([
-    { respondent: 'acn-ashutoshkumar', submitted_at: new Date().toISOString(), answers: { morale: 4, blockers: ['No blockers'], highlight: 'Completed R2.3 tests', concern: null }},
-    { respondent: 'acn-shameethsuresh', submitted_at: new Date().toISOString(), answers: { morale: 3, blockers: ['Waiting on another team'], highlight: null, concern: 'Staging env flaky' }},
-    { respondent: 'Prasath-7', submitted_at: new Date().toISOString(), answers: { morale: 5, blockers: ['No blockers'], highlight: 'Great retro!', concern: null }},
-    { respondent: 'acn-mohammadzameer', submitted_at: new Date().toISOString(), answers: { morale: 4, blockers: ['Unclear requirements'], highlight: null, concern: null }},
-  ], getISOWeek() + ' (demo)');
-}
-
-function renderDashboard(responses, week) {
-  const total = responses.length;
-  const morales = responses.map(r => r.answers?.morale).filter(Boolean);
-  const avg = arr => arr.length ? (arr.reduce((a,b) => a+b, 0) / arr.length).toFixed(1) : '--';
-  const blockerCounts = {};
-  responses.forEach(r => (r.answers?.blockers || []).forEach(b => { blockerCounts[b] = (blockerCounts[b] || 0) + 1; }));
-  const sortedBlockers = Object.entries(blockerCounts).sort((a,b) => b[1] - a[1]);
-  const maxB = sortedBlockers[0]?.[1] || 1;
-
-  document.getElementById('dash-content').innerHTML = `
-    <div class="stats-row">
-      <div class="stat-card c-accent"><div class="s-label">Responses</div><div class="s-value">${total}</div><div class="s-sub">${Math.round((total/TEAM_SIZE)*100)}% response rate</div></div>
-      <div class="stat-card c-teal"><div class="s-label">Avg morale</div><div class="s-value">${avg(morales)}<span style="font-size:13px;font-weight:400"> /5</span></div><div class="s-sub">${morales.length} rated</div></div>
-      <div class="stat-card c-coral"><div class="s-label">Top blocker</div><div class="s-value">${sortedBlockers[0]?.[0]?.split(' ')[0] || '--'}</div><div class="s-sub">${sortedBlockers[0] ? sortedBlockers[0][1] + ' affected' : 'none reported'}</div></div>
-    </div>
-    <div class="charts-grid">
-      <div class="chart-card"><h3>Morale distribution</h3><canvas id="morale-chart"></canvas></div>
-      <div class="chart-card"><h3>Blockers reported</h3>
-        ${sortedBlockers.length === 0
-          ? '<p style="color:var(--text-muted);font-size:13px;padding-top:8px">No blockers this week!</p>'
-          : `<ul class="blocker-bar-list">${sortedBlockers.map(([n,c]) => `<li><span class="b-name">${n}</span><span class="b-wrap"><span class="b-fill" style="width:${Math.round((c/maxB)*100)}%"></span></span><span class="b-count">${c}</span></li>`).join('')}</ul>`}
-      </div>
-      <div class="chart-card wide"><h3>Individual responses &mdash; ${week}</h3>
-        ${total === 0
-          ? '<p style="color:var(--text-muted);font-size:13px">No responses yet.</p>'
-          : `<table class="resp-table"><thead><tr><th>Teammate</th><th>Morale</th><th>Workload</th><th>Blockers</th><th>Highlight</th><th>Concern</th></tr></thead><tbody>
-            ${responses.map(r => `<tr>
-              <td><strong>${r.respondent}</strong><br><span style="color:var(--text-muted);font-size:11px">${new Date(r.submitted_at).toLocaleDateString()}</span></td>
-              <td>${r.answers?.morale ? `<span class="pill p${r.answers.morale}">${r.answers.morale}/5</span>` : '--'}</td>
-                  <td>${r.answers?.workload ? `<span class="pill p${r.answers.workload}">${r.answers.workload}/5</span>` : '--'}</td>
-              <td style="font-size:12px">${(r.answers?.blockers || []).join(', ') || '--'}</td>
-              <td style="font-size:12px;color:var(--text-muted)">${r.answers?.highlight || '--'}</td>
-              <td style="font-size:12px;color:var(--text-muted)">${r.answers?.concern || '--'}</td>
-            </tr>`).join('')}
-            </tbody></table>`}
-      </div>
-    </div>`;
-
-  const mCounts = [1,2,3,4,5].map(i => morales.filter(m => m === i).length);
-  new Chart(document.getElementById('morale-chart'), {
-    type: 'bar',
-    data: { labels: ['1 Low','2','3 OK','4','5 Great'], datasets: [{ data: mCounts, backgroundColor: ['#F7C1C1','#F09595','#FAC775','#9FE1CB','#5DCAA5'], borderRadius: 6, borderSkipped: false }] },
-    options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { ticks: { stepSize: 1, precision: 0 }, beginAtZero: true } } }
-  });
+    { respondent:'acn-ashutoshkumar', submitted_at:new Date().toISOString(), answers:{ q1_sprint_delivery:4, q2_collaboration:3, q3_tech_debt:3, q4_roadmap_visibility:4, q5_requirements:3, q6_genai_tools:['Claude (Anthropic)','GitHub Copilot'], q7_genai_productivity:4, q8_genai_confidence:4, q9_client_feedback:3, q10_overall:4 }},
+    { respondent:'acn-shameethsuresh', submitted_at:new Date().toISOString(), answers:{ q1_sprint_delivery:3, q2_collaboration:4, q3_tech_debt:2, q4_roadmap_visibility:3, q5_requirements:2, q6_genai_tools:['ChatGPT / OpenAI','Cursor'], q7_genai_productivity:3, q8_genai_confidence:3, q9_client_feedback:2, q10_overall:3 }},
+    { respondent:'Prasath-7', submitted_at:new Date().toISOString(), answers:{ q1_sprint_delivery:5, q2_collaboration:4, q3_tech_debt:4, q4_roadmap_visibility:5, q5_requirements:4, q6_genai_tools:['Claude (Anthropic)'], q7_genai_productivity:5, q8_genai_confidence:4, q9_client_feedback:4, q10_overall:5 }},
+    { respondent:'acn-mohammadzameer', submitted_at:new Date().toISOString(), answers:{ q1_sprint_delivery:3, q2_collaboration:3, q3_tech_debt:3, q4_roadmap_visibility:3, q5_requirements:3, q6_genai_tools:['GitHub Copilot'], q7_genai_productivity:3, q8_genai_confidence:3, q9_client_feedback:3, q10_overall:3 }},
+  ], month);
 }
 </script>
 </body>

@@ -23,23 +23,21 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
+            const fs   = require('fs');
             const path = require('path');
 
-            const issue = context.payload.issue;
-            const body = issue.body || '';
-
-            // Person who closed the issue = respondent
+            const issue     = context.payload.issue;
+            const body      = issue.body || '';
             const respondent = context.payload.sender?.login || issue.user?.login || 'unknown';
 
-            // Extract week from issue title
-            const titleMatch = issue.title.match(/(\d{4}-W\d{2})/);
+            // Extract month from issue title e.g. "2026-07"
+            const titleMatch = issue.title.match(/(\d{4}-\d{2})/);
             const d = new Date();
-            const startOfYear = new Date(d.getFullYear(), 0, 1);
-            const weekNum = Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
-            const week = titleMatch ? titleMatch[1] : `${d.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
+            const month = titleMatch
+              ? titleMatch[1]
+              : `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 
-            // Parse single-select rating (first checked box only)
+            // Parse single-select rating — first checked box
             function parseRating(section, body) {
               const lines = body.split('\n');
               let inSection = false;
@@ -50,12 +48,13 @@ jobs:
                   return match ? parseInt(match[1]) : null;
                 }
                 if (inSection && line.trim().startsWith('###')) break;
+                if (inSection && line.trim().startsWith('---')) break;
               }
               return null;
             }
 
-            // Parse checkboxes (multiple)
-            function parseCheckboxes(section, body) {
+            // Parse multi-select checkboxes
+            function parseMulti(section, body) {
               const lines = body.split('\n');
               let inSection = false;
               const selected = [];
@@ -65,55 +64,42 @@ jobs:
                   selected.push(line.replace(/- \[[xX]\]\s*/i, '').trim());
                 }
                 if (inSection && line.trim().startsWith('###')) break;
+                if (inSection && line.trim().startsWith('---')) break;
               }
               return selected;
             }
 
-            // Parse highlight and concern from comments
-            async function parseComments(issueNumber) {
-              let highlight = null, concern = null;
-              try {
-                const comments = await github.rest.issues.listComments({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issueNumber,
-                });
-                // Find comment by the respondent
-                for (const comment of comments.data) {
-                  if (comment.user.login !== respondent) continue;
-                  const body = comment.body || '';
-                  const hMatch = body.match(/Highlight:\s*(.+)/i);
-                  const cMatch = body.match(/Concern:\s*(.+)/i);
-                  if (hMatch) highlight = hMatch[1].trim();
-                  if (cMatch) concern = cMatch[1].trim();
-                }
-              } catch(e) { console.log('No comments found'); }
-              return { highlight, concern };
-            }
-
-            const { highlight, concern } = await parseComments(issue.number);
-
             const response = {
               issue_number: issue.number,
-              issue_title: issue.title,
-              respondent: respondent,
+              issue_title:  issue.title,
+              respondent:   respondent,
               submitted_at: new Date().toISOString(),
-              week: week,
+              month:        month,
               answers: {
-                morale:    parseRating('Team morale', body),
-                workload:  parseRating('Workload', body),
-                blockers:  parseCheckboxes('Blockers', body),
-                highlight: parseCheckboxes('Weekly highlight', body),
-                concern:   concern,
+                // Section 1
+                q1_sprint_delivery:     parseRating('Q1 Sprint', body),
+                q2_collaboration:       parseRating('Q2 Collaboration', body),
+                q3_tech_debt:           parseRating('Q3 Technical Debt', body),
+                // Section 2
+                q4_roadmap_visibility:  parseRating('Q4 Roadmap', body),
+                q5_requirements:        parseRating('Q5 Requirements', body),
+                // Section 3
+                q6_genai_tools:         parseMulti('Q6 GenAI Tool', body),
+                q7_genai_productivity:  parseRating('Q7 GenAI Impact', body),
+                q8_genai_confidence:    parseRating('Q8 GenAI Confidence', body),
+                // Section 4
+                q9_client_feedback:     parseRating('Q9 Client Feedback', body),
+                // Section 5
+                q10_overall:            parseRating('Q10 Overall', body),
               }
             };
 
-            const dir = path.join('responses', week);
+            const dir = path.join('responses', month);
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
             const filePath = path.join(dir, `${respondent}.json`);
             fs.writeFileSync(filePath, JSON.stringify(response, null, 2));
-            console.log(`Saved response for ${respondent} to ${filePath}`);
+            console.log(`Saved response for ${respondent} → ${filePath}`);
 
       - name: Commit response
         run: |
