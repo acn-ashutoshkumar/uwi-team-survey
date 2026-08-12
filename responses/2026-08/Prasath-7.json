@@ -1,0 +1,22 @@
+{
+  "issue_number": 30,
+  "issue_title": "UWI Monthly Survey - 2026-08 - Prasath-7",
+  "respondent": "Prasath-7",
+  "submitted_at": "2026-08-12T10:51:44.545Z",
+  "month": "2026-08",
+  "answers": {
+    "q1_sprint_delivery": 4,
+    "q2_collaboration": 4,
+    "q3_tech_debt": 4,
+    "q4_roadmap_visibility": 5,
+    "q5_requirements": 4,
+    "q6_genai_tools": [
+      "GitHub Copilot",
+      "Claude (Anthropic)"
+    ],
+    "q7_genai_productivity": 5,
+    "q8_genai_confidence": 3,
+    "q9_client_feedback": 4,
+    "q10_overall": 3
+  }
+}
