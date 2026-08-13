@@ -1,22 +1,25 @@
 {
-  "issue_number": 28,
+  "issue_number": 48,
   "issue_title": "UWI Monthly Survey - 2026-08 - acn-ashutoshkumar",
   "respondent": "acn-ashutoshkumar",
-  "submitted_at": "2026-08-12T10:16:10.749Z",
+  "submitted_at": "2026-08-13T12:27:58.656Z",
   "month": "2026-08",
   "answers": {
-    "q1_sprint_delivery": 2,
-    "q2_collaboration": 3,
-    "q3_tech_debt": 2,
-    "q4_roadmap_visibility": 3,
-    "q5_requirements": 1,
+    "q1_sprint_delivery": 1,
+    "q2_collaboration": 4,
+    "q3_tech_debt": 4,
+    "q4_roadmap_visibility": 4,
+    "q5_requirements": 4,
     "q6_genai_tools": [
       "GitHub Copilot",
-      "Claude (Anthropic)"
+      "Claude (Anthropic)",
+      "ChatGPT / OpenAI",
+      "Cursor",
+      "Other"
     ],
-    "q7_genai_productivity": 3,
-    "q8_genai_confidence": 5,
-    "q9_client_feedback": 2,
+    "q7_genai_productivity": 4,
+    "q8_genai_confidence": 4,
+    "q9_client_feedback": 4,
     "q10_overall": 3
   }
 }
