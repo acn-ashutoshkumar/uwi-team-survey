@@ -1,54 +1,171 @@
-name: "📋 Team Survey"
-description: "Weekly team pulse check-in"
-title: "[SURVEY] Team Pulse"
+name: "UWI Monthly Survey"
+description: "Monthly team pulse survey"
+title: "UWI Monthly Survey - MONTH - USERNAME"
 labels: ["team-survey"]
 
 body:
   - type: markdown
     attributes:
       value: |
-        ## 👋 UWI Weekly Team Pulse
-        Please fill this.
+        ## UWI Monthly Team Survey
+        Please answer all questions. Each rating question is single-select. Survey expires in **48 hours**.
         ---
 
-  - type: dropdown
-    id: morale
+  - type: markdown
     attributes:
-      label: "Team morale"
-      description: "How is team morale this week?"
+      value: "## SECTION 1 — Process & Ways of Working"
+
+  - type: dropdown
+    id: q1_sprint
+    attributes:
+      label: "Q1 — Sprint & Delivery Process"
+      description: "How satisfied are you with the current sprint cadence, ticket quality, and delivery processes on UWI?"
       options:
-        - "1 — Low"
-        - "2 — Below average"
-        - "3 — OK"
-        - "4 — Good"
-        - "5 — Great"
+        - "1 - Very Dissatisfied"
+        - "2 - Dissatisfied"
+        - "3 - Neutral"
+        - "4 - Satisfied"
+        - "5 - Very Satisfied"
     validations:
       required: true
 
-  - type: checkboxes
-    id: blockers
+  - type: dropdown
+    id: q2_collab
     attributes:
-      label: "Blockers"
-      description: "Are you facing any blockers? (select all that apply)"
+      label: "Q2 — Collaboration & Cross-Team Dependencies"
+      description: "How effectively do the UWI sub-teams (Frontend, Backend, QA, Infra) collaborate and resolve cross-team blockers?"
       options:
-        - label: "Technical debt / legacy issues"
-        - label: "Waiting on another team"
-        - label: "Unclear requirements"
-        - label: "Infrastructure / environment issues"
-        - label: "No blockers"
-
-  - type: textarea
-    id: highlight
-    attributes:
-      label: "Weekly highlight"
-      description: "One thing that went well this week? (optional)"
+        - "1 - Very Ineffective"
+        - "2 - Ineffective"
+        - "3 - Neutral"
+        - "4 - Effective"
+        - "5 - Very Effective"
     validations:
-      required: false
+      required: true
 
-  - type: textarea
-    id: concern
+  - type: dropdown
+    id: q3_tech
     attributes:
-      label: "Concern or suggestion"
-      description: "Anything the team or leadership should know? (optional)"
+      label: "Q3 — Technical Debt & Code Quality"
+      description: "How confident are you that the current codebase and architecture allow you to deliver new features without significant rework?"
+      options:
+        - "1 - Not at all confident"
+        - "2 - Slightly confident"
+        - "3 - Neutral"
+        - "4 - Confident"
+        - "5 - Fully confident"
     validations:
-      required: false
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "## SECTION 2 — Roadmap Clarity & Product Direction"
+
+  - type: dropdown
+    id: q4_roadmap
+    attributes:
+      label: "Q4 — Roadmap Visibility"
+      description: "How clearly do you understand the UWI product roadmap and how your current sprint work connects to it?"
+      options:
+        - "1 - No clarity"
+        - "2 - Limited clarity"
+        - "3 - Neutral"
+        - "4 - Clear"
+        - "5 - Full clarity"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q5_req
+    attributes:
+      label: "Q5 — Requirements Quality"
+      description: "How often do you start development work with clear, well-defined, and stable requirements?"
+      options:
+        - "1 - Almost never"
+        - "2 - Rarely"
+        - "3 - Sometimes"
+        - "4 - Often"
+        - "5 - Almost always"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "## SECTION 3 — GenAI Adoption & Tooling"
+
+  - type: checkboxes
+    id: q6_genai_tools
+    attributes:
+      label: "Q6 — GenAI Tool Usage (select all that apply)"
+      description: "Which GenAI tools are you currently using in your UWI development workflow?"
+      options:
+        - label: "GitHub Copilot"
+        - label: "Claude (Anthropic)"
+        - label: "ChatGPT / OpenAI"
+        - label: "Cursor"
+        - label: "Other"
+        - label: "None"
+
+  - type: dropdown
+    id: q7_genai_prod
+    attributes:
+      label: "Q7 — GenAI Impact on Productivity"
+      description: "How much has GenAI tooling improved your personal productivity on UWI compared to 6 months ago?"
+      options:
+        - "1 - No improvement"
+        - "2 - Slight improvement"
+        - "3 - Moderate improvement"
+        - "4 - Good improvement"
+        - "5 - Significant improvement"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q8_genai_conf
+    attributes:
+      label: "Q8 — GenAI Confidence & Trust"
+      description: "How confident are you in reviewing and shipping AI-generated code without introducing quality or security issues?"
+      options:
+        - "1 - Not confident"
+        - "2 - Slightly confident"
+        - "3 - Neutral"
+        - "4 - Confident"
+        - "5 - Very confident"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "## SECTION 4 — Client Satisfaction & Stakeholder Alignment"
+
+  - type: dropdown
+    id: q9_client
+    attributes:
+      label: "Q9 — Client Feedback Loop"
+      description: "How well does feedback from the NTT Docomo client reach the development team in a timely and actionable way?"
+      options:
+        - "1 - Rarely or Never"
+        - "2 - Occasionally"
+        - "3 - Sometimes"
+        - "4 - Often"
+        - "5 - Always with clear actions"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "## SECTION 5 — Overall Satisfaction"
+
+  - type: dropdown
+    id: q10_overall
+    attributes:
+      label: "Q10 — Overall Satisfaction"
+      description: "Overall, how proud are you of the work being delivered on UWI, and how satisfied are you as a developer on this project?"
+      options:
+        - "1 - Very Dissatisfied"
+        - "2 - Dissatisfied"
+        - "3 - Neutral"
+        - "4 - Satisfied"
+        - "5 - Very Satisfied"
+    validations:
+      required: true
