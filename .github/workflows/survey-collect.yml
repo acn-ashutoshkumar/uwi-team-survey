@@ -26,9 +26,15 @@ jobs:
             const fs   = require('fs');
             const path = require('path');
 
-            const issue     = context.payload.issue;
-            const body      = issue.body || '';
+            const issue      = context.payload.issue;
+            const body       = issue.body || '';
             const respondent = context.payload.sender?.login || issue.user?.login || 'unknown';
+
+            // Skip auto-expired issues (closed as not_planned by survey-bot)
+            if (issue.state_reason === 'not_planned') {
+              console.log(`Skipping auto-expired issue #${issue.number}`);
+              return;
+            }
 
             // Extract month from issue title e.g. "2026-07"
             const titleMatch = issue.title.match(/(\d{4}-\d{2})/);
