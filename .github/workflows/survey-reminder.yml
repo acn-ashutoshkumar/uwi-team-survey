@@ -1,89 +1,106 @@
-name: "Survey Reminder & Auto-Expire"
+name: "Survey Reminder"
 
 on:
-  issues:
-    types: [opened]
+  schedule:
+    # Runs every 12 hours
+    - cron: "0 */12 * * *"
+  workflow_dispatch: {}
 
 permissions:
   issues: write
   contents: read
 
 jobs:
-  reminder-and-expire:
+  send-reminders:
     runs-on: ubuntu-latest
-    # Only run for survey issues
-    if: contains(github.event.issue.labels.*.name, 'team-survey')
-
     steps:
-      - name: Wait 12 hours then send reminder
-        run: sleep 43200
-        # 43200 seconds = 12 hours
-
-      - name: Check if still open — send reminder
+      - name: Send reminders at 12h, 24h, 36h and auto-close at 48h
         uses: actions/github-script@v7
         with:
           script: |
-            const issueNumber = ${{ github.event.issue.number }};
-            const assignee = "${{ github.event.issue.assignees[0].login || github.event.issue.user.login }}";
+            const now = new Date();
 
-            // Check current state of issue
-            const { data: issue } = await github.rest.issues.get({
+            const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo:  context.repo.repo,
-              issue_number: issueNumber,
+              labels: 'team-survey',
+              state: 'open',
+              per_page: 50,
             });
 
-            if (issue.state === 'closed') {
-              console.log(`Issue #${issueNumber} already closed — no reminder needed`);
-              return;
+            console.log(`Found ${issues.data.length} open survey issues`);
+
+            for (const issue of issues.data) {
+              const createdAt = new Date(issue.created_at);
+              const ageHours  = (now - createdAt) / (1000 * 60 * 60);
+              const assignee  = issue.assignees?.[0]?.login || issue.user?.login;
+
+              console.log(`Issue #${issue.number} — ${assignee} — age: ${ageHours.toFixed(1)}h`);
+
+              // ── AUTO-CLOSE at 48h ─────────────────────────────────
+              if (ageHours >= 48) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo:  context.repo.repo,
+                  issue_number: issue.number,
+                  body: `Survey has expired after 48 hours — auto-closing.\n\nIf you still want to respond, please contact the admin to reopen.`,
+                });
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo:  context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed',
+                  state_reason: 'not_planned',
+                });
+                console.log(`Auto-closed #${issue.number}`);
+                continue;
+              }
+
+              // ── REMINDERS at 12h, 24h, 36h ───────────────────────
+              // Determine which reminder window we are in
+              let reminderNum = null;
+              let hoursLeft   = null;
+
+              if (ageHours >= 36 && ageHours < 48) {
+                reminderNum = 3;
+                hoursLeft   = 12;
+              } else if (ageHours >= 24 && ageHours < 36) {
+                reminderNum = 2;
+                hoursLeft   = 24;
+              } else if (ageHours >= 12 && ageHours < 24) {
+                reminderNum = 1;
+                hoursLeft   = 36;
+              }
+
+              if (!reminderNum) {
+                console.log(`Issue #${issue.number} is less than 12h old — no reminder yet`);
+                continue;
+              }
+
+              // Check if this specific reminder was already sent
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                issue_number: issue.number,
+                per_page: 50,
+              });
+
+              const alreadySent = comments.data.some(c =>
+                c.body.includes(`Reminder ${reminderNum}/3`) && c.user.type === 'Bot'
+              );
+
+              if (alreadySent) {
+                console.log(`Reminder ${reminderNum}/3 already sent for #${issue.number} — skipping`);
+                continue;
+              }
+
+              // Post reminder comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                issue_number: issue.number,
+                body: `**REMINDER ${reminderNum}/3** @${assignee}\n\nYour UWI monthly survey is still pending. Please fill in your ratings and close this issue.\n\n**${hoursLeft} hours remaining** before this survey auto-expires.`,
+              });
+
+              console.log(`Sent Reminder ${reminderNum}/3 to ${assignee} for #${issue.number} — ${hoursLeft}h left`);
             }
-
-            // Still open — send ONE reminder
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo:  context.repo.repo,
-              issue_number: issueNumber,
-              body: `**REMINDER** @${assignee}\n\nYour UWI monthly survey is still pending. Please fill in the checkboxes and close this issue.\n\n**36 hours remaining** before this survey auto-expires.`,
-            });
-
-            console.log(`Reminder sent to ${assignee} for issue #${issueNumber}`);
-
-      - name: Wait another 36 hours then auto-expire
-        run: sleep 129600
-        # 129600 seconds = 36 hours (total 48h from issue creation)
-
-      - name: Check if still open — auto-close
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const issueNumber = ${{ github.event.issue.number }};
-            const assignee = "${{ github.event.issue.assignees[0].login || github.event.issue.user.login }}";
-
-            const { data: issue } = await github.rest.issues.get({
-              owner: context.repo.owner,
-              repo:  context.repo.repo,
-              issue_number: issueNumber,
-            });
-
-            if (issue.state === 'closed') {
-              console.log(`Issue #${issueNumber} already closed — no auto-expire needed`);
-              return;
-            }
-
-            // Still open after 48h — auto close
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo:  context.repo.repo,
-              issue_number: issueNumber,
-              body: `Survey has expired after 48 hours — auto-closing this issue.\n\nIf you still want to respond, please contact the admin to reopen.`,
-            });
-
-            await github.rest.issues.update({
-              owner: context.repo.owner,
-              repo:  context.repo.repo,
-              issue_number: issueNumber,
-              state: 'closed',
-              state_reason: 'not_planned',
-            });
-
-            console.log(`Auto-closed issue #${issueNumber} after 48h`);
