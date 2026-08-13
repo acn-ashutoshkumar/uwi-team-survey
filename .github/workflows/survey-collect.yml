@@ -43,34 +43,35 @@ jobs:
               ? titleMatch[1]
               : `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 
-            // Parse single-select rating — first checked box
-            function parseRating(section, body) {
+            // Parse rating from "**My rating: [X]**" format
+            // Finds the Nth occurrence of "My rating:" in the body
+            function parseRating(questionLabel, body) {
               const lines = body.split('\n');
               let inSection = false;
               for (const line of lines) {
-                if (line.includes('### ') && line.includes(section)) { inSection = true; continue; }
-                if (inSection && (line.trim().startsWith('- [x]') || line.trim().startsWith('- [X]'))) {
-                  const match = line.match(/(\d)/);
+                if (line.includes(questionLabel)) { inSection = true; continue; }
+                if (inSection && line.includes('My rating:')) {
+                  const match = line.match(/My rating:\s*\[\s*(\d)\s*\]/);
                   return match ? parseInt(match[1]) : null;
                 }
-                if (inSection && line.trim().startsWith('###')) break;
-                if (inSection && line.trim().startsWith('---')) break;
+                // Stop at next question
+                if (inSection && line.startsWith('**Q') && !line.includes(questionLabel)) break;
               }
               return null;
             }
 
-            // Parse multi-select checkboxes
-            function parseMulti(section, body) {
+            // Parse multi-select checkboxes (Q6 only)
+            function parseMulti(questionLabel, body) {
               const lines = body.split('\n');
               let inSection = false;
               const selected = [];
               for (const line of lines) {
-                if (line.includes('### ') && line.includes(section)) { inSection = true; continue; }
+                if (line.includes(questionLabel)) { inSection = true; continue; }
                 if (inSection && (line.trim().startsWith('- [x]') || line.trim().startsWith('- [X]'))) {
                   selected.push(line.replace(/- \[[xX]\]\s*/i, '').trim());
                 }
-                if (inSection && line.trim().startsWith('###')) break;
-                if (inSection && line.trim().startsWith('---')) break;
+                if (inSection && line.startsWith('**Q') && !line.includes(questionLabel)) break;
+                if (inSection && line.includes('My rating:')) break;
               }
               return selected;
             }
@@ -83,20 +84,20 @@ jobs:
               month:        month,
               answers: {
                 // Section 1
-                q1_sprint_delivery:     parseRating('Q1 Sprint', body),
-                q2_collaboration:       parseRating('Q2 Collaboration', body),
-                q3_tech_debt:           parseRating('Q3 Technical Debt', body),
+                q1_sprint_delivery:     parseRating('Q1 — Sprint', body),
+                q2_collaboration:       parseRating('Q2 — Collaboration', body),
+                q3_tech_debt:           parseRating('Q3 — Technical Debt', body),
                 // Section 2
-                q4_roadmap_visibility:  parseRating('Q4 Roadmap', body),
-                q5_requirements:        parseRating('Q5 Requirements', body),
+                q4_roadmap_visibility:  parseRating('Q4 — Roadmap', body),
+                q5_requirements:        parseRating('Q5 — Requirements', body),
                 // Section 3
-                q6_genai_tools:         parseMulti('Q6 GenAI Tool', body),
-                q7_genai_productivity:  parseRating('Q7 GenAI Impact', body),
-                q8_genai_confidence:    parseRating('Q8 GenAI Confidence', body),
+                q6_genai_tools:         parseMulti('Q6 — GenAI Tool', body),
+                q7_genai_productivity:  parseRating('Q7 — GenAI Impact', body),
+                q8_genai_confidence:    parseRating('Q8 — GenAI Confidence', body),
                 // Section 4
-                q9_client_feedback:     parseRating('Q9 Client Feedback', body),
+                q9_client_feedback:     parseRating('Q9 — Client Feedback', body),
                 // Section 5
-                q10_overall:            parseRating('Q10 Overall', body),
+                q10_overall:            parseRating('Q10 — Overall', body),
               }
             };
 
