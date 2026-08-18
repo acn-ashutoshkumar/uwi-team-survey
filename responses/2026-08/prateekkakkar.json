@@ -1,0 +1,22 @@
+{
+  "issue_number": 59,
+  "issue_title": "UWI Monthly Survey - 2026-08 - prateekkakkar",
+  "respondent": "prateekkakkar",
+  "submitted_at": "2026-08-18T06:56:32.891Z",
+  "month": "2026-08",
+  "answers": {
+    "q1_sprint_delivery": 3,
+    "q2_collaboration": 3,
+    "q3_tech_debt": 2,
+    "q4_roadmap_visibility": 2,
+    "q5_requirements": 4,
+    "q6_genai_tools": [
+      "Claude (Anthropic)",
+      "ChatGPT / OpenAI"
+    ],
+    "q7_genai_productivity": 4,
+    "q8_genai_confidence": 4,
+    "q9_client_feedback": 3,
+    "q10_overall": 3
+  }
+}
