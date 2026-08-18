@@ -1,0 +1,22 @@
+{
+  "issue_number": 60,
+  "issue_title": "UWI Monthly Survey - 2026-08 - acn-mohammadzameer",
+  "respondent": "acn-mohammadzameer",
+  "submitted_at": "2026-08-18T06:20:04.167Z",
+  "month": "2026-08",
+  "answers": {
+    "q1_sprint_delivery": 3,
+    "q2_collaboration": 4,
+    "q3_tech_debt": 4,
+    "q4_roadmap_visibility": 3,
+    "q5_requirements": 2,
+    "q6_genai_tools": [
+      "GitHub Copilot",
+      "Claude (Anthropic)"
+    ],
+    "q7_genai_productivity": 5,
+    "q8_genai_confidence": 4,
+    "q9_client_feedback": 5,
+    "q10_overall": 3
+  }
+}
